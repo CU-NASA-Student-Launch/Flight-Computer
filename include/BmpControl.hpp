@@ -3,8 +3,8 @@
 #include <Adafruit_BMP280.h>
 #include <SensorData.hpp>
 
-#define BMP280_ADDRESS_ALT 0x76
-#define BMP280_CHIPID 0x58
+#define BMP_ADDRESS 0x76
+#define BMP_ID 0x58
 
 class BmpControl
 {

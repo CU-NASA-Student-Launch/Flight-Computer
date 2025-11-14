@@ -25,9 +25,6 @@ void MpuControl::connectMpu(void)
   mpu.setInterruptPinLatch(true);	// Keep it latched.  Will turn off when reinitialized.
   mpu.setInterruptPinPolarity(false);
   mpu.setMotionInterrupt(true);
-
-  Serial.println("");
-  delay(100);
 }
 
 MpuData MpuControl::pollMpu() 

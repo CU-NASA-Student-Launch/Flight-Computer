@@ -7,13 +7,9 @@ BmpControl::BmpControl()
 
 void BmpControl::connectBmp(void) 
 {
-  Serial.begin(9600);
-  while ( !Serial ) delay(100);   // wait for native usb
-  Serial.println(F("BMP280 Sensor event test"));
-
   unsigned status;
 
-  status = bmp.begin(BMP280_ADDRESS_ALT,BMP280_CHIPID);
+  status = bmp.begin(BMP_ADDRESS,BMP_ID);
 
   if (!status) 
   {
@@ -39,14 +35,11 @@ void BmpControl::connectBmp(void)
 
 BmpData BmpControl::pollBmp() 
 {
-  sensors_event_t temp_event, pressure_event;
-  bmp_temp->getEvent(&temp_event);
-  bmp_pressure->getEvent(&pressure_event);
-
   BmpData polledBmpData;
 
-  polledBmpData.temp = temp_event.temperature; // Celsius
-  polledBmpData.pressure = pressure_event.pressure; // hPa
+  polledBmpData.temp = bmp.readTemperature(); // Celsius
+  polledBmpData.pressure = bmp.readPressure(); // Pa
+  polledBmpData.altitude = bmp.readAltitude(1013.25); // m
   
   return polledBmpData;
 }
