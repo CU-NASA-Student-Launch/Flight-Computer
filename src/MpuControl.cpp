@@ -1,5 +1,10 @@
 #include <MpuControl.hpp>
 
+MpuControl::MpuControl()
+{
+  // Do nothing
+}
+
 void MpuControl::connectMpu(void) 
 {
   // Find MPU6050
@@ -25,35 +30,20 @@ void MpuControl::connectMpu(void)
   delay(100);
 }
 
-void MpuControl::pollMpu() 
+MpuData MpuControl::pollMpu() 
 {
+  // Get new sensor events with the readings
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
 
-  if(mpu.getMotionInterruptStatus()) 
-  {
-    /* Get new sensor events with the readings */
-    sensors_event_t a, g, temp;
-    mpu.getEvent(&a, &g, &temp);
+  MpuData polledMpuData;
 
-    /* Print out the values */
-    Serial.print("AccelX:");
-    Serial.print(a.acceleration.x);
-    Serial.print(",");
-    Serial.print("AccelY:");
-    Serial.print(a.acceleration.y);
-    Serial.print(",");
-    Serial.print("AccelZ:");
-    Serial.print(a.acceleration.z);
-    Serial.print(", ");
-    Serial.print("GyroX:");
-    Serial.print(g.gyro.x);
-    Serial.print(",");
-    Serial.print("GyroY:");
-    Serial.print(g.gyro.y);
-    Serial.print(",");
-    Serial.print("GyroZ:");
-    Serial.print(g.gyro.z);
-    Serial.println("");
-  }
+  polledMpuData.accelX = a.acceleration.x;
+  polledMpuData.accelY = a.acceleration.y;
+  polledMpuData.accelZ = a.acceleration.z;
+  polledMpuData.gyroX = g.gyro.x;
+  polledMpuData.gyroY = g.gyro.y;
+  polledMpuData.gyroZ = g.gyro.z;
 
-  delay(10);
+  return polledMpuData;
 }

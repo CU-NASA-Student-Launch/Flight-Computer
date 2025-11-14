@@ -1,5 +1,10 @@
 #include <BmpControl.hpp>
 
+BmpControl::BmpControl()
+{
+    // Do nothing
+}
+
 void BmpControl::connectBmp(void) 
 {
   Serial.begin(9600);
@@ -32,20 +37,16 @@ void BmpControl::connectBmp(void)
   bmp_temp->printSensorDetails();
 }
 
-void BmpControl::pollBmp() 
+BmpData BmpControl::pollBmp() 
 {
   sensors_event_t temp_event, pressure_event;
   bmp_temp->getEvent(&temp_event);
   bmp_pressure->getEvent(&pressure_event);
+
+  BmpData polledBmpData;
+
+  polledBmpData.temp = temp_event.temperature; // Celsius
+  polledBmpData.pressure = pressure_event.pressure; // hPa
   
-  Serial.print(F("Temperature = "));
-  Serial.print(temp_event.temperature);
-  Serial.println(" *C");
-
-  Serial.print(F("Pressure = "));
-  Serial.print(pressure_event.pressure);
-  Serial.println(" hPa");
-
-  Serial.println();
-  delay(2000);
+  return polledBmpData;
 }
