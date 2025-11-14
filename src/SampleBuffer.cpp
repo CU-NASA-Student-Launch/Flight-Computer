@@ -1,7 +1,7 @@
-#include "SampleBuffer.h"
-
 #include <Arduino.h>
 #include "LittleFS.h"
+#include "Record.hpp"
+#include "SampleBuffer.hpp"
 
 SampleBuffer::SampleBuffer() {
     if (!LittleFS.begin()) {
@@ -9,6 +9,7 @@ SampleBuffer::SampleBuffer() {
         while (1);
     }
 
+    // clearing out old flight data
     if (LittleFS.exists("/flight.csv") && !LittleFS.remove("/flight.csv")) {
         Serial.println("Unable to remove old flight.csv");
     }
@@ -19,7 +20,7 @@ SampleBuffer::SampleBuffer() {
 
     File f = LittleFS.open("/flight.csv", "a");
     if (!f) { Serial.println("file open fail"); return; }
-    f.println("time(ms), count");
+    f.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), temp (Celsius), pressure (Pa), altitude (m)");
     f.close();
 }
 
@@ -27,33 +28,40 @@ SampleBuffer::~SampleBuffer() {
     delete[] buffer;
 }
 
-void SampleBuffer::Flush() {
+void SampleBuffer::flush() {
     File f = LittleFS.open("/flight.csv", "a");
     if (!f) { Serial.println("file open fail"); return; }
 
     // flushing whatever is in the buffer to the file
     for (int i = BUFFER_SIZE - remainingCapacity - 1; i >= 0; --i) {
-        f.printf("%ld,%f\n", buffer[i].t_ms, buffer[i].x);
+        f.printf("%ld,", buffer[i].t_ms);
+        f.printf("%f,", buffer[i].accelX);
+        f.printf("%f,", buffer[i].accelY);
+        f.printf("%f,", buffer[i].accelZ);
+        f.printf("%f,", buffer[i].gyroX);
+        f.printf("%f,", buffer[i].gyroY);
+        f.printf("%f,", buffer[i].gyroZ);
+        f.printf("%f,", buffer[i].temp);
+        f.printf("%f,", buffer[i].pressure);
+        f.printf("%f\n", buffer[i].altitude);
     }
     f.close();
     remainingCapacity = BUFFER_SIZE;
 }
 
-void SampleBuffer::Collect() {
+void SampleBuffer::store(Record &record) {
     if (remainingCapacity != 0) {
-        Serial.println("Collecting");
         record.t_ms = millis();
-        record.x = 1234.1;
         buffer[BUFFER_SIZE - remainingCapacity] = record;
         remainingCapacity--;
     }
 }
 
-bool SampleBuffer::Full() {
+bool SampleBuffer::full() {
     return (remainingCapacity == 0);
 }
 
-void SampleBuffer::StreamFSData() {
+void SampleBuffer::streamFSData() {
   while (!Serial) delay(10);
 
   if (!LittleFS.begin()) {

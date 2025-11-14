@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_BMP280.h>
-#include <SensorData.hpp>
+#include <Record.hpp>
 
 #define BMP_ADDRESS 0x76
 #define BMP_ID 0x58
@@ -11,7 +11,7 @@ class BmpControl
 public:
     BmpControl();
     void connectBmp(void);
-    BmpData pollBmp(void);
+    void pollBmp(Record &record);
 
 private:
     Adafruit_BMP280 bmp; // use I2C interface
