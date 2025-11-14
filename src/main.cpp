@@ -24,7 +24,7 @@ void setup() {
     // buffer.StreamFSData();
 
     // Set up serial connection
-    
+
     Serial.begin(115200);
     delay(3000);
 
@@ -36,6 +36,8 @@ void setup() {
 void loop() {
     BmpData polledBmpData = bmpSensor.pollBmp();
     MpuData polledMpuData = mpuSensor.pollMpu();
+
+    Serial.println("*************************************");
 
     // Print BMP data
     Serial.print(F("Temperature = "));

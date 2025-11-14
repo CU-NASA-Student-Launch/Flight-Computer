@@ -3,6 +3,9 @@
 #include <Wire.h>
 #include <SensorData.hpp>
 
+#ifndef MPU_CONTROL_HPP
+#define MPU_CONTROL_HPP
+
 class MpuControl
 {
     public:
@@ -16,3 +19,5 @@ class MpuControl
     private:
         Adafruit_MPU6050 mpu;
 };
+
+#endif // MPU_CONTROL_HPP

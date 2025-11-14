@@ -3,6 +3,9 @@
 #include <Adafruit_BMP280.h>
 #include <SensorData.hpp>
 
+#ifndef BMP_CONTROLL_HPP
+#define BMP_CONTROLL_HPP
+
 #define BMP_ADDRESS 0x76
 #define BMP_ID 0x58
 
@@ -18,3 +21,5 @@ private:
     Adafruit_Sensor *bmp_temp = bmp.getTemperatureSensor();
     Adafruit_Sensor *bmp_pressure = bmp.getPressureSensor();
 };
+
+#endif // BMP_CONTROLL_HPP
