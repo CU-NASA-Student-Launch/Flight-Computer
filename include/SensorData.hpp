@@ -1,7 +1,7 @@
 // Defining the return types of the poll functions
 
-#ifndef RECORD_HPP
-#define RECORD_HPP
+#ifndef SENSOR_DATA_HPP
+#define SENSOR_DATA_HPP
 
 struct SensorData
 {
@@ -17,4 +17,4 @@ struct SensorData
     float altitude;
 };
 
-#endif // RECORD_HPP
+#endif // SENSOR_DATA_HPP
