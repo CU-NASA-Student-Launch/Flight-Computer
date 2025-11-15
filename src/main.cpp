@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "SampleBuffer.hpp"
-#include <Record.hpp>
+#include <FsWriter.hpp>
+#include <SensorData.hpp>
 #include <BmpControl.hpp>
 #include <MpuControl.hpp>
 
@@ -23,22 +23,21 @@ void setup() {
 
 void loop() {
     if (recordingEnabled) { 
-        SampleBuffer buffer;
-        Record record;
+        SensorData currData;
+        FsWriter writer;
 
-        for(int i = 0; i < 50; ++i) {
-            bmpSensor.pollBmp(record);
-            mpuSensor.pollMpu(record);
-
-            buffer.store(record);
-            if (buffer.full()) {
-                buffer.flush();
-            }
-            delay(100);
+        // Right now we are only logging 70 items in the csv
+        for(int i = 0; i < 70; i++) {
+            bmpSensor.pollBmp(currData);
+            mpuSensor.pollMpu(currData);
+            currData.t_ms = millis();
+            writer.store(currData);
         }
 
+        writer.flush();
+
         Serial.println("Done");
-        buffer.streamFSData();
+        writer.streamFSData();
         recordingEnabled = false;
     }
 }

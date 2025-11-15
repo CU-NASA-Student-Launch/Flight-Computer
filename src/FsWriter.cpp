@@ -1,9 +1,10 @@
 #include <Arduino.h>
+#include <array>
 #include "LittleFS.h"
-#include "Record.hpp"
-#include "SampleBuffer.hpp"
+#include <SensorData.hpp>
+#include <FsWriter.hpp>
 
-SampleBuffer::SampleBuffer() {
+FsWriter::FsWriter() {
     if (!LittleFS.begin()) {
         Serial.println("LittleFS begin failed!");
         while (1);
@@ -13,10 +14,6 @@ SampleBuffer::SampleBuffer() {
     if (LittleFS.exists("/flight.csv") && !LittleFS.remove("/flight.csv")) {
         Serial.println("Unable to remove old flight.csv");
     }
-    
-    BUFFER_SIZE = 8;
-    buffer = new Record[BUFFER_SIZE];
-    remainingCapacity = BUFFER_SIZE;
 
     File f = LittleFS.open("/flight.csv", "a");
     if (!f) { Serial.println("file open fail"); return; }
@@ -24,44 +21,45 @@ SampleBuffer::SampleBuffer() {
     f.close();
 }
 
-SampleBuffer::~SampleBuffer() {
-    delete[] buffer;
+FsWriter::~FsWriter() 
+{
+
 }
 
-void SampleBuffer::flush() {
+void FsWriter::flush() {
     File f = LittleFS.open("/flight.csv", "a");
     if (!f) { Serial.println("file open fail"); return; }
 
     // flushing whatever is in the buffer to the file
-    for (int i = BUFFER_SIZE - remainingCapacity - 1; i >= 0; --i) {
-        f.printf("%ld,", buffer[i].t_ms);
-        f.printf("%f,", buffer[i].accelX);
-        f.printf("%f,", buffer[i].accelY);
-        f.printf("%f,", buffer[i].accelZ);
-        f.printf("%f,", buffer[i].gyroX);
-        f.printf("%f,", buffer[i].gyroY);
-        f.printf("%f,", buffer[i].gyroZ);
-        f.printf("%f,", buffer[i].temp);
-        f.printf("%f,", buffer[i].pressure);
-        f.printf("%f\n", buffer[i].altitude);
+    for (int i = 0; i < currBuffLoc; i++) {
+        f.printf("%ld,", sensorDataBuff[i].t_ms);
+        f.printf("%f,", sensorDataBuff[i].accelX);
+        f.printf("%f,", sensorDataBuff[i].accelY);
+        f.printf("%f,", sensorDataBuff[i].accelZ);
+        f.printf("%f,", sensorDataBuff[i].gyroX);
+        f.printf("%f,", sensorDataBuff[i].gyroY);
+        f.printf("%f,", sensorDataBuff[i].gyroZ);
+        f.printf("%f,", sensorDataBuff[i].temp);
+        f.printf("%f,", sensorDataBuff[i].pressure);
+        f.printf("%f\n", sensorDataBuff[i].altitude);
     }
     f.close();
-    remainingCapacity = BUFFER_SIZE;
 }
 
-void SampleBuffer::store(Record &record) {
-    if (remainingCapacity != 0) {
-        record.t_ms = millis();
-        buffer[BUFFER_SIZE - remainingCapacity] = record;
-        remainingCapacity--;
+void FsWriter::store(SensorData &record) 
+{
+    // Check if the buffer is full before writing
+    if(currBuffLoc == sensorDataBuff.size())
+    {
+        this->flush();
+        currBuffLoc = 0;
     }
+    
+    sensorDataBuff[currBuffLoc] = record;
+    currBuffLoc++;
 }
 
-bool SampleBuffer::full() {
-    return (remainingCapacity == 0);
-}
-
-void SampleBuffer::streamFSData() {
+void FsWriter::streamFSData() {
   while (!Serial) delay(10);
 
   if (!LittleFS.begin()) {

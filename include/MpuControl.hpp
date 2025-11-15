@@ -1,7 +1,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
-#include <Record.hpp>
+#include <SensorData.hpp>
 
 #ifndef MPU_CONTROL_HPP
 #define MPU_CONTROL_HPP
@@ -13,7 +13,7 @@ class MpuControl
         MpuControl();
         // Member functions
         void connectMpu(void);
-        void pollMpu(Record &record);
+        void pollMpu(SensorData &record);
 
 
     private:

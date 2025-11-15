@@ -3,7 +3,7 @@
 #ifndef RECORD_HPP
 #define RECORD_HPP
 
-struct Record
+struct SensorData
 {
     uint32_t t_ms;
     float accelX;

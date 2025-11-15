@@ -22,7 +22,7 @@ void MpuControl::connectMpu(void)
   mpu.setMotionInterrupt(true);
 }
 
-void MpuControl::pollMpu(Record &record) 
+void MpuControl::pollMpu(SensorData &record) 
 {
   // Get new sensor events with the readings
   sensors_event_t a, g, temp;
