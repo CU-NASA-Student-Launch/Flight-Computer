@@ -22,20 +22,16 @@ void MpuControl::connectMpu(void)
   mpu.setMotionInterrupt(true);
 }
 
-MpuData MpuControl::pollMpu() 
+void MpuControl::pollMpu(SensorData &record) 
 {
   // Get new sensor events with the readings
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
-  MpuData polledMpuData;
-
-  polledMpuData.accelX = a.acceleration.x;
-  polledMpuData.accelY = a.acceleration.y;
-  polledMpuData.accelZ = a.acceleration.z;
-  polledMpuData.gyroX = g.gyro.x;
-  polledMpuData.gyroY = g.gyro.y;
-  polledMpuData.gyroZ = g.gyro.z;
-
-  return polledMpuData;
+  record.accelX = a.acceleration.x;
+  record.accelY = a.acceleration.y;
+  record.accelZ = a.acceleration.z;
+  record.gyroX = g.gyro.x;
+  record.gyroY = g.gyro.y;
+  record.gyroZ = g.gyro.z;
 }

@@ -14,7 +14,7 @@ class BmpControl
 public:
     BmpControl();
     void connectBmp(void);
-    BmpData pollBmp(void);
+    void pollBmp(SensorData &record);
 
 private:
     Adafruit_BMP280 bmp; // use I2C interface

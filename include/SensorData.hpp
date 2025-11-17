@@ -1,20 +1,17 @@
-// Defining the return types of the pull functions
+// Defining the return types of the poll functions
 
 #ifndef SENSOR_DATA_HPP
 #define SENSOR_DATA_HPP
 
-struct MpuData
+struct SensorData
 {
+    uint32_t t_ms;
     float accelX;
     float accelY;
     float accelZ;
     float gyroX;
     float gyroY;
     float gyroZ;
-};
-
-struct BmpData
-{
     float temp;
     float pressure;
     float altitude;

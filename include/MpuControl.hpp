@@ -13,7 +13,7 @@ class MpuControl
         MpuControl();
         // Member functions
         void connectMpu(void);
-        MpuData pollMpu(void);
+        void pollMpu(SensorData &record);
 
 
     private:
