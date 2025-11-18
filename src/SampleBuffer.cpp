@@ -9,11 +9,6 @@ SampleBuffer::SampleBuffer() {
         while (1);
     }
 
-    // clearing out old flight data
-    if (LittleFS.exists("/flight.csv") && !LittleFS.remove("/flight.csv")) {
-        Serial.println("Unable to remove old flight.csv");
-    }
-    
     BUFFER_SIZE = 8;
     buffer = new Record[BUFFER_SIZE];
     remainingCapacity = BUFFER_SIZE;
@@ -62,24 +57,74 @@ bool SampleBuffer::full() {
 }
 
 void SampleBuffer::streamFSData() {
-  while (!Serial) delay(10);
+    int GET[] = {71, 69, 84};
 
-  if (!LittleFS.begin()) {
-    Serial.println("Mount failed!");
-    return;
-  }
+    // state 0 = waiting for G
+    // state 1 = waiting for E
+    // state 2 = waiting for T
+    int state = 0;
+    int nextByte;
+    bool getRequest = false;
 
-  File f = LittleFS.open("/flight.csv", "r");
-  if (!f) {
-    Serial.println("File not found!");
-    return;
-  }
+    while(1) {
+        while (!Serial) delay(10);
 
-  Serial.println(F("BEGIN_FILE"));
-  while (f.available()) {
-    uint8_t b = f.read();
-    Serial.write(b);      // raw binary stream
-  }
-  f.close();
-  Serial.println(F("END_FILE"));
+         nextByte = Serial.read();
+
+        if (state == 0) {
+            if (nextByte == GET[1]) {
+                state = 1;
+            }
+        }
+        else if (state == 1) {
+            if (nextByte == GET[1]) {
+                state = 2;
+            }
+            else {
+                state = 0;
+            }
+        }
+        else if (state == 2) {
+            if (nextByte == GET[2]) {
+                getRequest = true;
+            }
+            else {
+                state = 0;
+            }
+        }
+        
+        if (getRequest == true) {
+            // stream file
+
+            if (!LittleFS.begin()) {
+                Serial.println("Mount failed!");
+                return;
+            }
+
+            if (LittleFS.exists("/flight.csv")) {
+                File f = LittleFS.open("/flight.csv", "r");
+                if (!f) {
+                    Serial.println("File not found!");
+                    return;
+                }
+
+                Serial.println(F("BEGIN_FILE"));
+                while (f.available()) {
+                    uint8_t b = f.read();
+                    Serial.write(b);      // raw binary stream
+                }
+                f.close();
+                Serial.println(F("END_FILE"));
+
+                // ideally this should wait for confirmation from client
+                bool removal = LittleFS.remove("/flight.csv");
+                if (!removal) {
+                    Serial.println("Unable to remove old flight.csv");
+                }
+            }
+
+            getRequest = false;
+            state = 0;
+        }
+    }
 }
