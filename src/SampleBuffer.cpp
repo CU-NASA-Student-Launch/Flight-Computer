@@ -59,6 +59,8 @@ bool SampleBuffer::full() {
 void SampleBuffer::streamFSData() {
     int GET[] = {71, 69, 84};
 
+    Serial.println("Ready");
+
     // state 0 = waiting for G
     // state 1 = waiting for E
     // state 2 = waiting for T
