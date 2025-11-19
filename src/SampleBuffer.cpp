@@ -61,41 +61,14 @@ void SampleBuffer::streamFSData() {
 
     Serial.println("Ready");
 
-    // state 0 = waiting for G
-    // state 1 = waiting for E
-    // state 2 = waiting for T
-    int state = 0;
-    int nextByte;
-    bool getRequest = false;
-
     while(1) {
         while (!Serial) delay(10);
 
-         nextByte = Serial.read();
-
-        if (state == 0) {
-            if (nextByte == GET[1]) {
-                state = 1;
-            }
-        }
-        else if (state == 1) {
-            if (nextByte == GET[1]) {
-                state = 2;
-            }
-            else {
-                state = 0;
-            }
-        }
-        else if (state == 2) {
-            if (nextByte == GET[2]) {
-                getRequest = true;
-            }
-            else {
-                state = 0;
-            }
-        }
+        String word = Serial.readStringUntil('\n');
         
-        if (getRequest == true) {
+        if (word == "GET") {
+            Serial.println("ACK: GET");
+        
             // stream file
 
             if (!LittleFS.begin()) {
@@ -106,7 +79,7 @@ void SampleBuffer::streamFSData() {
             if (LittleFS.exists("/flight.csv")) {
                 File f = LittleFS.open("/flight.csv", "r");
                 if (!f) {
-                    Serial.println("File not found!");
+                    Serial.println("FILE_NOT_FOUND");
                     return;
                 }
 
@@ -120,13 +93,18 @@ void SampleBuffer::streamFSData() {
 
                 // ideally this should wait for confirmation from client
                 bool removal = LittleFS.remove("/flight.csv");
+                
                 if (!removal) {
-                    Serial.println("Unable to remove old flight.csv");
+                    Serial.println(F("Unable to remove old flight.csv"));
+                }
+                else {
+                    Serial.println(F("Removed flight.csv from flash"));
                 }
             }
-
-            getRequest = false;
-            state = 0;
+            else {
+                Serial.println(F("FILE_NOT_FOUND"));
+            }
+        
         }
     }
 }
