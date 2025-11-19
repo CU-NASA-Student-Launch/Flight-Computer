@@ -34,17 +34,24 @@ void setup() {
     delay(100);
     
     // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 3000; i++)
+    for(int i = 0; i < 30; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
         delay(100); 
     }
 
-    // Make annoying noise forever to signify waiting for motion event
-    speaker.startAlarm();
+    speaker.blare();
 
-    mpuSensor.stallUntilMotion();
+    while(mpuSensor.checkMotion());
+
+    // TESTING
+    for(int i = 0; i < 10; i++)
+    {
+        // Beep fervantly to signify motion has been detected for testing purposes
+        speaker.beep(0.1);
+        delay(100); 
+    }
 }
 
 void loop() {

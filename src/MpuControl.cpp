@@ -15,7 +15,7 @@ void MpuControl::connectMpu(void)
 
   // Setup motion detection
   mpu.setHighPassFilter(MPU6050_HIGHPASS_0_63_HZ);
-  mpu.setMotionDetectionThreshold(1);
+  mpu.setMotionDetectionThreshold(10);
   mpu.setMotionDetectionDuration(20);
   mpu.setInterruptPinLatch(true);	// Keep it latched.  Will turn off when reinitialized.
   mpu.setInterruptPinPolarity(false);
@@ -41,9 +41,9 @@ bool MpuControl::checkUpsideDown(void)
   return upsideDown;
 }
 
-void MpuControl::stallUntilMotion(void)
+bool MpuControl::checkMotion(void)
 {
-  while(!mpu.getMotionInterruptStatus());
+  return mpu.getMotionInterruptStatus();
 }
 
 void MpuControl::pollMpu(SensorData &record) 

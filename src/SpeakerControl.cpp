@@ -10,20 +10,15 @@ SpeakerControl::SpeakerControl()
 void SpeakerControl::beep(double seconds)
 {
     analogWrite(negPin, -128);
-    analogWrite(negPin, 128);
+    analogWrite(posPin, 128);
     delay(seconds*1000);
     analogWrite(negPin, 0);
-    analogWrite(negPin, 0);
+    analogWrite(posPin, 0);
 }
 
-void SpeakerControl::startAlarm()
+void SpeakerControl::blare()
 {
     analogWrite(negPin, -128);
-    analogWrite(negPin, 128);
-}
-
-void SpeakerControl::stopAlarm()
-{
-    analogWrite(negPin, 0);
-    analogWrite(negPin, 0);
+    analogWrite(posPin, 128);
+    delay(1000);
 }
