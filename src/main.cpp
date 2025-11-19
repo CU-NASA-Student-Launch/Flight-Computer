@@ -27,16 +27,19 @@ void setup() {
     }
 
     speaker.beep(0.1);
-    delay(0.1);
+    delay(100);
     speaker.beep(0.1);
-    delay(0.1);
+    delay(100);
     speaker.beep(0.1);
-    delay(0.1);
-    speaker.beep(0.1);
-    delay(0.1);
+    delay(100);
     
-    // TODO: Add beeping to this
-    delay(300000); // Wait for 5 mins after upside-down event
+    // Wait for 5 mins after upside-down event
+    for(int i = 0; i < 3000; i++)
+    {
+        // Beep fervantly
+        speaker.beep(0.1);
+        delay(100); 
+    }
 
     // Add beeping to this too
     mpuSensor.stallUntilMotion();

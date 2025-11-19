@@ -36,7 +36,7 @@ bool MpuControl::checkUpsideDown(void)
     {
       upsideDown = false;
     }
-    delay(1000);
+    delay(500);
   }
   return upsideDown;
 }

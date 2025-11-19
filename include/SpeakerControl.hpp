@@ -7,7 +7,7 @@ class SpeakerControl
 {
 public:
     SpeakerControl();
-    void beep(int seconds);
+    void beep(double seconds);
 
 private:
     // Speaker pins
