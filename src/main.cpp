@@ -3,9 +3,11 @@
 #include <SensorData.hpp>
 #include <BmpControl.hpp>
 #include <MpuControl.hpp>
+#include <SpeakerControl.hpp>
 
 BmpControl bmpSensor;
 MpuControl mpuSensor;
+SpeakerControl speaker;
 
 // in here for now. To be changed upon launch event detection
 bool recordingEnabled;
@@ -13,6 +15,10 @@ bool recordingEnabled;
 void setup() {
     Serial.begin(115200);
     delay(3000);
+
+    // Set up speaker pins
+    pinMode(22, OUTPUT);
+    pinMode(24, OUTPUT);
 
     // Establish connection with sensors
     bmpSensor.connectBmp();
@@ -33,20 +39,20 @@ void setup() {
 void loop() {
     if (recordingEnabled) { 
         SensorData currData;
-        FsWriter writer;
+        //FsWriter writer;
 
         // Right now we are only logging 70 items in the csv
         for(int i = 0; i < 70; i++) {
             bmpSensor.pollBmp(currData);
             mpuSensor.pollMpu(currData);
             currData.t_ms = millis();
-            writer.store(currData);
+            //writer.store(currData);
         }
 
-        writer.flush();
+        //writer.flush();
 
         Serial.println("Done");
-        writer.streamFSData();
+        //writer.streamFSData();
         recordingEnabled = false;
     }
 }
