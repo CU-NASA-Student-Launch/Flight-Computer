@@ -32,7 +32,7 @@ bool MpuControl::checkUpsideDown(void)
   // If ever right-side up, we haven't been upside-down for long enough
   for(int i = 0; i < 5; i++)
   {
-    if(a.acceleration.y < -8)
+    if(a.acceleration.y > 0)
     {
       upsideDown = false;
     }

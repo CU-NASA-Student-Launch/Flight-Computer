@@ -9,16 +9,9 @@ BmpControl bmpSensor;
 MpuControl mpuSensor;
 SpeakerControl speaker;
 
-// in here for now. To be changed upon launch event detection
-bool recordingEnabled;
-
 void setup() {
     Serial.begin(115200);
     delay(3000);
-
-    // Set up speaker pins
-    pinMode(22, OUTPUT);
-    pinMode(24, OUTPUT);
 
     // Establish connection with sensors
     bmpSensor.connectBmp();
@@ -28,31 +21,41 @@ void setup() {
     // before starting logging.
     while(!mpuSensor.checkUpsideDown())
     {
-        recordingEnabled = true;
+        speaker.beep(1);
+        delay(1000);
+        speaker.beep(1);
     }
 
+    speaker.beep(0.1);
+    delay(0.1);
+    speaker.beep(0.1);
+    delay(0.1);
+    speaker.beep(0.1);
+    delay(0.1);
+    speaker.beep(0.1);
+    delay(0.1);
+    
+    // TODO: Add beeping to this
     delay(300000); // Wait for 5 mins after upside-down event
 
+    // Add beeping to this too
     mpuSensor.stallUntilMotion();
 }
 
 void loop() {
-    if (recordingEnabled) { 
-        SensorData currData;
-        //FsWriter writer;
+    SensorData currData;
+    //FsWriter writer;
 
-        // Right now we are only logging 70 items in the csv
-        for(int i = 0; i < 70; i++) {
-            bmpSensor.pollBmp(currData);
-            mpuSensor.pollMpu(currData);
-            currData.t_ms = millis();
-            //writer.store(currData);
-        }
-
-        //writer.flush();
-
-        Serial.println("Done");
-        //writer.streamFSData();
-        recordingEnabled = false;
+    // Right now we are only logging 70 items in the csv
+    for(int i = 0; i < 70; i++) {
+        bmpSensor.pollBmp(currData);
+        mpuSensor.pollMpu(currData);
+        currData.t_ms = millis();
+        //writer.store(currData);
     }
+
+    //writer.flush();
+
+    Serial.println("Done");
+    //writer.streamFSData();
 }
