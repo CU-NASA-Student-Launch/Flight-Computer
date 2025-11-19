@@ -15,7 +15,7 @@ class MpuControl
         void connectMpu(void);
         void pollMpu(SensorData &record);
         bool checkUpsideDown(void);
-
+        void stallUntilMotion(void);
 
     private:
         Adafruit_MPU6050 mpu;

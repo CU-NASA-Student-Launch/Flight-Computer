@@ -41,6 +41,11 @@ bool MpuControl::checkUpsideDown(void)
   return upsideDown;
 }
 
+void MpuControl::stallUntilMotion(void)
+{
+  while(!mpu.getMotionInterruptStatus());
+}
+
 void MpuControl::pollMpu(SensorData &record) 
 {
   // Get new sensor events with the readings

@@ -24,12 +24,13 @@ void setup() {
     {
         recordingEnabled = true;
     }
-    
+
     delay(300000); // Wait for 5 mins after upside-down event
+
+    mpuSensor.stallUntilMotion();
 }
 
 void loop() {
-
     if (recordingEnabled) { 
         SensorData currData;
         FsWriter writer;
