@@ -41,7 +41,9 @@ void setup() {
         delay(100); 
     }
 
-    // Add beeping to this too
+    // Make annoying noise forever to signify waiting for motion event
+    speaker.startAlarm();
+
     mpuSensor.stallUntilMotion();
 }
 

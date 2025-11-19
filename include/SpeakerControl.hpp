@@ -8,6 +8,8 @@ class SpeakerControl
 public:
     SpeakerControl();
     void beep(double seconds);
+    void startAlarm(void);
+    void stopAlarm(void);
 
 private:
     // Speaker pins

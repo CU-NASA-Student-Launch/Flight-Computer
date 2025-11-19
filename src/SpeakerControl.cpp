@@ -15,3 +15,15 @@ void SpeakerControl::beep(double seconds)
     analogWrite(negPin, 0);
     analogWrite(negPin, 0);
 }
+
+void SpeakerControl::startAlarm()
+{
+    analogWrite(negPin, -128);
+    analogWrite(negPin, 128);
+}
+
+void SpeakerControl::stopAlarm()
+{
+    analogWrite(negPin, 0);
+    analogWrite(negPin, 0);
+}
