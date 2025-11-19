@@ -14,6 +14,7 @@ class MpuControl
         // Member functions
         void connectMpu(void);
         void pollMpu(SensorData &record);
+        bool checkUpsideDown(void);
 
 
     private:

@@ -18,10 +18,18 @@ void setup() {
     bmpSensor.connectBmp();
     mpuSensor.connectMpu();
 
-    recordingEnabled = true;
+    // Wait for rocket to be turned upside down for five seconds
+    // before starting logging.
+    while(!mpuSensor.checkUpsideDown())
+    {
+        recordingEnabled = true;
+    }
+    
+    delay(300000); // Wait for 5 mins after upside-down event
 }
 
 void loop() {
+
     if (recordingEnabled) { 
         SensorData currData;
         FsWriter writer;

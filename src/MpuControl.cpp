@@ -22,6 +22,25 @@ void MpuControl::connectMpu(void)
   mpu.setMotionInterrupt(true);
 }
 
+bool MpuControl::checkUpsideDown(void)
+{
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
+
+  bool upsideDown = true;
+  // Check once a second for five seconds
+  // If ever right-side up, we haven't been upside-down for long enough
+  for(int i = 0; i < 5; i++)
+  {
+    if(a.acceleration.y < -8)
+    {
+      upsideDown = false;
+    }
+    delay(1000);
+  }
+  return upsideDown;
+}
+
 void MpuControl::pollMpu(SensorData &record) 
 {
   // Get new sensor events with the readings
