@@ -16,11 +16,12 @@ class MpuControl
         void pollMpu(SensorData &record);
         bool checkUpsideDown(void);
         bool checkMotion(void);
-        static void setMoved();
+        static void resetMoved();
 
     private:
         Adafruit_MPU6050 mpu;
         const int mpuIntPin = 17;
+        static void setMoved();
 };
 
 #endif // MPU_CONTROL_HPP

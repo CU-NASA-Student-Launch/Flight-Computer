@@ -49,6 +49,11 @@ void MpuControl::setMoved(void)
   motionDetected = true;
 }
 
+void MpuControl::resetMoved(void)
+{
+  motionDetected = false;
+}
+
 bool MpuControl::checkMotion(void)
 {
   return motionDetected;;
