@@ -1,5 +1,7 @@
 #include <MpuControl.hpp>
 
+volatile bool motionDetected = false;
+
 MpuControl::MpuControl()
 {
   // Do nothing
@@ -15,11 +17,12 @@ void MpuControl::connectMpu(void)
 
   // Setup motion detection
   mpu.setHighPassFilter(MPU6050_HIGHPASS_0_63_HZ);
-  mpu.setMotionDetectionThreshold(10);
+  mpu.setMotionDetectionThreshold(50);
   mpu.setMotionDetectionDuration(20);
   mpu.setInterruptPinLatch(true);	// Keep it latched.  Will turn off when reinitialized.
   mpu.setInterruptPinPolarity(false);
   mpu.setMotionInterrupt(true);
+  attachInterrupt(digitalPinToInterrupt(mpuIntPin), MpuControl::setMoved, RISING);
 }
 
 bool MpuControl::checkUpsideDown(void)
@@ -32,7 +35,7 @@ bool MpuControl::checkUpsideDown(void)
   // If ever right-side up, we haven't been upside-down for long enough
   for(int i = 0; i < 5; i++)
   {
-    if(a.acceleration.y > 0)
+    if(a.acceleration.y > 8)
     {
       upsideDown = false;
     }
@@ -41,9 +44,14 @@ bool MpuControl::checkUpsideDown(void)
   return upsideDown;
 }
 
+void MpuControl::setMoved(void)
+{
+  motionDetected = true;
+}
+
 bool MpuControl::checkMotion(void)
 {
-  return mpu.getMotionInterruptStatus();
+  return motionDetected;;
 }
 
 void MpuControl::pollMpu(SensorData &record) 

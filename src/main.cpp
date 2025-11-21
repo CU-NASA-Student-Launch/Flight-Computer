@@ -25,16 +25,9 @@ void setup() {
         delay(1000);
         speaker.beep(1);
     }
-
-    speaker.beep(0.1);
-    delay(100);
-    speaker.beep(0.1);
-    delay(100);
-    speaker.beep(0.1);
-    delay(100);
     
     // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 30; i++)
+    for(int i = 0; i < 3000; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
@@ -42,32 +35,23 @@ void setup() {
     }
 
     speaker.blare();
-
-    while(mpuSensor.checkMotion());
-
-    // TESTING
-    for(int i = 0; i < 10; i++)
-    {
-        // Beep fervantly to signify motion has been detected for testing purposes
-        speaker.beep(0.1);
-        delay(100); 
-    }
+    while(!mpuSensor.checkMotion());
 }
 
 void loop() {
     SensorData currData;
-    //FsWriter writer;
+    FsWriter writer;
 
     // Right now we are only logging 70 items in the csv
     for(int i = 0; i < 70; i++) {
         bmpSensor.pollBmp(currData);
         mpuSensor.pollMpu(currData);
         currData.t_ms = millis();
-        //writer.store(currData);
+        writer.store(currData);
     }
 
-    //writer.flush();
+    writer.flush();
 
     Serial.println("Done");
-    //writer.streamFSData();
+    writer.streamFSData();
 }
