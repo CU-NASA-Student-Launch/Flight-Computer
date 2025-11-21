@@ -5,18 +5,29 @@
 #include <MpuControl.hpp>
 #include <SpeakerControl.hpp>
 
+#include "LittleFS.h"
+
 BmpControl bmpSensor;
 MpuControl mpuSensor;
 SpeakerControl speaker;
+SensorData currData;
+FsWriter writer;
+
+int logStart = 0;
 
 void setup() {
     Serial.begin(115200);
     delay(3000);
+    if (!LittleFS.exists("/flight.csv")) {
+        Serial.println(F("NO_FILE_AFTER_HEADER_WRITE"));
+    }
 
     // Establish connection with sensors
     bmpSensor.connectBmp();
     mpuSensor.connectMpu();
 
+    writer.initiate(); // loops forever if file is already there
+    
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
     while(!mpuSensor.checkUpsideDown())
@@ -27,7 +38,7 @@ void setup() {
     }
     
     // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 3000; i++)
+    for(int i = 0; i < 1500; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
@@ -36,22 +47,22 @@ void setup() {
 
     speaker.blare();
     while(!mpuSensor.checkMotion());
+    logStart = millis();
 }
 
 void loop() {
-    SensorData currData;
-    FsWriter writer;
+    bmpSensor.pollBmp(currData);
+    mpuSensor.pollMpu(currData);
+    currData.t_ms = millis();
+    writer.store(currData);
 
-    // Right now we are only logging 70 items in the csv
-    for(int i = 0; i < 70; i++) {
-        bmpSensor.pollBmp(currData);
-        mpuSensor.pollMpu(currData);
-        currData.t_ms = millis();
-        writer.store(currData);
+    constexpr int tenMinMilli = 1000*60*10; // Ten minutes in milliseconds
+
+    if(BOOTSEL || (millis() > (tenMinMilli + logStart)))
+    {
+        speaker.silence();
+        writer.streamFSData();
     }
 
-    writer.flush();
-
-    Serial.println("Done");
-    writer.streamFSData();
+    speaker.beep(0.031);
 }

@@ -11,6 +11,8 @@ class FsWriter {
 
         ~FsWriter();
 
+        void initiate();
+
         void flush();
 
         void store(SensorData &record);

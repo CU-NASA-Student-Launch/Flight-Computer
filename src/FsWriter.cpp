@@ -5,25 +5,26 @@
 #include <FsWriter.hpp>
 
 FsWriter::FsWriter() {
-    if (!LittleFS.begin()) {
-        Serial.println("LittleFS begin failed!");
-        while (1);
-    }
-
-    // clearing out old flight data
-    if (LittleFS.exists("/flight.csv") && !LittleFS.remove("/flight.csv")) {
-        Serial.println("Unable to remove old flight.csv");
-    }
-
-    File f = LittleFS.open("/flight.csv", "a");
-    if (!f) { Serial.println("file open fail"); return; }
-    f.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), temp (Celsius), pressure (Pa), altitude (m)");
-    f.close();
+    
 }
 
 FsWriter::~FsWriter() 
 {
 
+}
+
+void FsWriter::initiate() {
+    LittleFS.begin();
+    
+    if (!LittleFS.exists("/flight.csv")) {
+        File f = LittleFS.open("/flight.csv", "a");
+        
+        f.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m)");
+        f.close();
+    }
+    else {
+        this->streamFSData();
+    }
 }
 
 void FsWriter::flush() {
@@ -39,7 +40,6 @@ void FsWriter::flush() {
         f.printf("%f,", sensorDataBuff[i].gyroX);
         f.printf("%f,", sensorDataBuff[i].gyroY);
         f.printf("%f,", sensorDataBuff[i].gyroZ);
-        f.printf("%f,", sensorDataBuff[i].temp);
         f.printf("%f,", sensorDataBuff[i].pressure);
         f.printf("%f\n", sensorDataBuff[i].altitude);
     }
@@ -49,7 +49,7 @@ void FsWriter::flush() {
 void FsWriter::store(SensorData &record) 
 {
     // Check if the buffer is full before writing
-    if(currBuffLoc == sensorDataBuff.size())
+    if(currBuffLoc == sensorDataBuff.size()-1)
     {
         this->flush();
         currBuffLoc = 0;
@@ -60,24 +60,50 @@ void FsWriter::store(SensorData &record)
 }
 
 void FsWriter::streamFSData() {
-  while (!Serial) delay(10);
+  while(1) {
+        while (!Serial) delay(10);
 
-  if (!LittleFS.begin()) {
-    Serial.println("Mount failed!");
-    return;
-  }
+        String word = Serial.readStringUntil('\n');
+        
+        if (word == "GET") {
+            Serial.println("ACK: GET");
+        
+            // stream file
 
-  File f = LittleFS.open("/flight.csv", "r");
-  if (!f) {
-    Serial.println("File not found!");
-    return;
-  }
+            if (!LittleFS.begin()) {
+                Serial.println("Mount failed!");
+                return;
+            }
 
-  Serial.println(F("BEGIN_FILE"));
-  while (f.available()) {
-    uint8_t b = f.read();
-    Serial.write(b);      // raw binary stream
-  }
-  f.close();
-  Serial.println(F("END_FILE"));
+            if (LittleFS.exists("/flight.csv")) {
+                File f = LittleFS.open("/flight.csv", "r");
+                if (!f) {
+                    Serial.println("CANNOT_OPEN_FILE");
+                    return;
+                }
+
+                Serial.println(F("BEGIN_FILE"));
+                while (f.available()) {
+                    uint8_t b = f.read();
+                    Serial.write(b);      // raw binary stream
+                }
+                f.close();
+                Serial.println(F("END_FILE"));
+
+                // ideally this should wait for confirmation from client
+                bool removal = LittleFS.remove("/flight.csv");
+                
+                if (!removal) {
+                    Serial.println(F("Unable to remove old flight.csv"));
+                }
+                else {
+                    Serial.println(F("Removed flight.csv from flash"));
+                }
+            }
+            else {
+                Serial.println(F("FILE_NOT_FOUND"));
+            }
+        
+        }
+    }
 }
