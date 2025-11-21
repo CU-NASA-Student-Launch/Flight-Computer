@@ -13,6 +13,8 @@ SpeakerControl speaker;
 SensorData currData;
 FsWriter writer;
 
+int logStart;
+
 void setup() {
     Serial.begin(115200);
     delay(3000);
@@ -36,7 +38,7 @@ void setup() {
     }
     
     // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 30; i++)
+    for(int i = 0; i < 3000; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
@@ -45,6 +47,7 @@ void setup() {
 
     speaker.blare();
     while(!mpuSensor.checkMotion());
+    logStart = millis();
 }
 
 void loop() {
@@ -55,10 +58,14 @@ void loop() {
     currData.t_ms = millis();
     writer.store(currData);
 
-    if(BOOTSEL || (millis() > (1000*60)))
+    const int tenMinMilli = 1000*60*10; // Ten minutes in milliseconds
+
+    if(BOOTSEL || (millis() > (tenMinMilli) + logStart))
     {
         speaker.silence();
         writer.streamFSData();
         for(;;);
     }
+
+    delay(31);
 }
