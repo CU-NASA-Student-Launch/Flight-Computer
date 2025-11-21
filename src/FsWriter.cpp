@@ -95,14 +95,19 @@ void FsWriter::streamFSData() {
 
                 bool removal;
                 if (word == "ACK") {
-                    removal = LittleFS.remove("/flight.csv");
-                }
-                
-                if (!removal) {
-                    Serial.println(F("Unable to remove old flight.csv. ACK not received by Pico."));
-                }
-                else {
-                    Serial.println(F("Removed flight.csv from flash"));
+                    word = Serial.readStringUntil('\n');
+                    if (word == "Y") {
+                        removal = LittleFS.remove("/flight.csv");
+                        if (!removal) {
+                            Serial.println(F("Unable to remove old flight.csv. ACK not received by Pico."));
+                        }
+                        else {
+                            Serial.println(F("Removed flight.csv from flash"));
+                        }
+                    }
+                    else if (word == "N") {
+                        Serial.println(F("Keeping flight.csv on flash."));
+                    }
                 }
             }
             else {
