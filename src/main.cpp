@@ -13,7 +13,7 @@ SpeakerControl speaker;
 SensorData currData;
 FsWriter writer;
 
-int logStart;
+int logStart = 0;
 
 void setup() {
     Serial.begin(115200);
@@ -38,7 +38,7 @@ void setup() {
     }
     
     // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 30; i++)
+    for(int i = 0; i < 1500; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
@@ -62,7 +62,6 @@ void loop() {
     {
         speaker.silence();
         writer.streamFSData();
-        for(;;);
     }
 
     speaker.beep(0.031);
