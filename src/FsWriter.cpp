@@ -91,11 +91,15 @@ void FsWriter::streamFSData() {
                 f.close();
                 Serial.println(F("END_FILE"));
 
-                // ideally this should wait for confirmation from client
-                bool removal = LittleFS.remove("/flight.csv");
+                word = Serial.readStringUntil('\n');
+
+                bool removal;
+                if (word == "ACK") {
+                    removal = LittleFS.remove("/flight.csv");
+                }
                 
                 if (!removal) {
-                    Serial.println(F("Unable to remove old flight.csv"));
+                    Serial.println(F("Unable to remove old flight.csv. ACK not received by Pico."));
                 }
                 else {
                     Serial.println(F("Removed flight.csv from flash"));
