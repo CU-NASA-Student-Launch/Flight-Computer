@@ -12,7 +12,6 @@ struct SensorData
     float gyroX;
     float gyroY;
     float gyroZ;
-    float temp;
     float pressure;
     float altitude;
 };

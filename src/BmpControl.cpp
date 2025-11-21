@@ -33,7 +33,6 @@ void BmpControl::connectBmp(void)
 }
 
 void BmpControl::pollBmp(SensorData &record) {
-  record.temp = bmp.readTemperature(); // Celsius
   record.pressure = bmp.readPressure(); // Pa
   record.altitude = bmp.readAltitude(1013.25); // m
 }

@@ -19,7 +19,7 @@ void FsWriter::initiate() {
     if (!LittleFS.exists("/flight.csv")) {
         File f = LittleFS.open("/flight.csv", "a");
         
-        f.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), temp (Celsius), pressure (Pa), altitude (m)");
+        f.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m)");
         f.close();
     }
     else {
@@ -40,7 +40,6 @@ void FsWriter::flush() {
         f.printf("%f,", sensorDataBuff[i].gyroX);
         f.printf("%f,", sensorDataBuff[i].gyroY);
         f.printf("%f,", sensorDataBuff[i].gyroZ);
-        f.printf("%f,", sensorDataBuff[i].temp);
         f.printf("%f,", sensorDataBuff[i].pressure);
         f.printf("%f\n", sensorDataBuff[i].altitude);
     }

@@ -38,7 +38,7 @@ void setup() {
     }
     
     // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 3000; i++)
+    for(int i = 0; i < 30; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
@@ -51,21 +51,19 @@ void setup() {
 }
 
 void loop() {
-
-
     bmpSensor.pollBmp(currData);
     mpuSensor.pollMpu(currData);
     currData.t_ms = millis();
     writer.store(currData);
 
-    const int tenMinMilli = 1000*60*10; // Ten minutes in milliseconds
+    constexpr int tenMinMilli = 1000*60*10; // Ten minutes in milliseconds
 
-    if(BOOTSEL || (millis() > (tenMinMilli) + logStart))
+    if(BOOTSEL || (millis() > (tenMinMilli + logStart)))
     {
         speaker.silence();
         writer.streamFSData();
         for(;;);
     }
 
-    delay(31);
+    speaker.beep(0.031);
 }
