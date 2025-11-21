@@ -90,13 +90,12 @@ void FsWriter::streamFSData() {
                 }
                 f.close();
                 Serial.println(F("END_FILE"));
-
-                word = Serial.readStringUntil('\n');
-
+                Serial.setTimeout(300000); // waits for 5 minutes
+                String word = Serial.readStringUntil('\n');
                 bool removal;
                 if (word == "ACK") {
-                    word = Serial.readStringUntil('\n');
-                    if (word == "Y") {
+                    String word = Serial.readStringUntil('\n');
+                    if (word == "YES") {
                         removal = LittleFS.remove("/flight.csv");
                         if (!removal) {
                             Serial.println(F("Unable to remove old flight.csv. ACK not received by Pico."));
@@ -105,7 +104,7 @@ void FsWriter::streamFSData() {
                             Serial.println(F("Removed flight.csv from flash"));
                         }
                     }
-                    else if (word == "N") {
+                    else if (word == "NO") {
                         Serial.println(F("Keeping flight.csv on flash."));
                     }
                 }
