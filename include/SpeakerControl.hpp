@@ -9,6 +9,7 @@ public:
     SpeakerControl();
     void beep(double seconds);
     void blare(void);
+    void silence(void);
 
 private:
     // Speaker pins

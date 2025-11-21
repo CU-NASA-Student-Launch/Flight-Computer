@@ -22,3 +22,9 @@ void SpeakerControl::blare()
     analogWrite(posPin, 128);
     delay(1000);
 }
+
+void SpeakerControl::silence()
+{
+    analogWrite(negPin, 0);
+    analogWrite(posPin, 0);
+}
