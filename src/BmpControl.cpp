@@ -29,11 +29,9 @@ void BmpControl::connectBmp(void)
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
-  bmp_temp->printSensorDetails();
 }
 
 void BmpControl::pollBmp(SensorData &record) {
-  record.temp = bmp.readTemperature(); // Celsius
   record.pressure = bmp.readPressure(); // Pa
   record.altitude = bmp.readAltitude(1013.25); // m
 }

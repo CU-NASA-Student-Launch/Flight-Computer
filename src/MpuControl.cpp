@@ -16,8 +16,8 @@ void MpuControl::connectMpu(void)
 
 bool MpuControl::checkUpsideDown(void)
 {
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
+  sensors_event_t a, g;
+  mpu.getEvent(&a, &g, nullptr);
 
   bool upsideDown = true;
   // Check once a second for five seconds
@@ -43,8 +43,8 @@ bool MpuControl::checkMotion(void)
 void MpuControl::pollMpu(SensorData &record) 
 {
   // Get new sensor events with the readings
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
+  sensors_event_t a, g;
+  mpu.getEvent(&a, &g, nullptr);
 
   record.accelX = a.acceleration.x;
   record.accelY = a.acceleration.y;
