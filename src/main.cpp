@@ -42,16 +42,16 @@ void loop() {
     SensorData currData;
     FsWriter writer;
 
-    // Right now we are only logging 70 items in the csv
-    for(int i = 0; i < 70; i++) {
-        bmpSensor.pollBmp(currData);
-        mpuSensor.pollMpu(currData);
-        currData.t_ms = millis();
-        writer.store(currData);
-    }
+    bmpSensor.pollBmp(currData);
+    mpuSensor.pollMpu(currData);
+    currData.t_ms = millis();
+    writer.store(currData);
 
     writer.flush();
 
-    Serial.println("Done");
-    writer.streamFSData();
+    if(BOOTSEL || (millis() > (1000*60)))
+    {
+        writer.streamFSData();
+        for(;;);
+    }
 }
