@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "SampleBuffer.h"
+#include "FsWriter.h"
 
 bool recordingEnabled;
 void setup() {
@@ -10,7 +10,7 @@ void setup() {
 
 void loop() {
     if (recordingEnabled) {
-        SampleBuffer buffer;
+        FsWriter buffer;
 
         for(int i = 0; i < 50; ++i) {
             buffer.Collect();

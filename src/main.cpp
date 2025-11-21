@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "SampleBuffer.hpp"
+#include "FsWriter.hpp"
 #include <Record.hpp>
 #include <BmpControl.hpp>
 #include <MpuControl.hpp>
@@ -23,7 +23,7 @@ void setup() {
 
 void loop() {
     if (recordingEnabled) { 
-        SampleBuffer buffer;
+        FsWriter buffer;
         Record record;
 
         for(int i = 0; i < 50; ++i) {

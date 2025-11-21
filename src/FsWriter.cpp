@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "LittleFS.h"
 #include "Record.hpp"
-#include "SampleBuffer.hpp"
+#include "FsWriter.hpp"
 
-SampleBuffer::SampleBuffer() {
+FsWriter::FsWriter() {
     if (!LittleFS.begin()) {
         Serial.println("LittleFS begin failed!");
         while (1);
@@ -19,11 +19,11 @@ SampleBuffer::SampleBuffer() {
     f.close();
 }
 
-SampleBuffer::~SampleBuffer() {
+FsWriter::~FsWriter() {
     delete[] buffer;
 }
 
-void SampleBuffer::flush() {
+void FsWriter::flush() {
     File f = LittleFS.open("/flight.csv", "a");
     if (!f) { Serial.println("file open fail"); return; }
 
@@ -44,7 +44,7 @@ void SampleBuffer::flush() {
     remainingCapacity = BUFFER_SIZE;
 }
 
-void SampleBuffer::store(Record &record) {
+void FsWriter::store(Record &record) {
     if (remainingCapacity != 0) {
         record.t_ms = millis();
         buffer[BUFFER_SIZE - remainingCapacity] = record;
@@ -52,11 +52,11 @@ void SampleBuffer::store(Record &record) {
     }
 }
 
-bool SampleBuffer::full() {
+bool FsWriter::full() {
     return (remainingCapacity == 0);
 }
 
-void SampleBuffer::streamFSData() {
+void FsWriter::streamFSData() {
     int GET[] = {71, 69, 84};
 
     Serial.println("Ready");

@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include "Record.hpp"
 
-class SampleBuffer {
+class FsWriter {
     public:
-        SampleBuffer();
+        FsWriter();
 
-        ~SampleBuffer();
+        ~FsWriter();
 
         void flush();
 
