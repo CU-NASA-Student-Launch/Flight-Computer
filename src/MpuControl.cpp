@@ -1,7 +1,5 @@
 #include <MpuControl.hpp>
 
-volatile bool motionDetected = false;
-
 MpuControl::MpuControl()
 {
   // Do nothing
@@ -14,15 +12,6 @@ void MpuControl::connectMpu(void)
   {
     Serial.println("Failed to find MPU6050 chip");
   }
-
-  // Setup motion detection
-  mpu.setHighPassFilter(MPU6050_HIGHPASS_0_63_HZ);
-  mpu.setMotionDetectionThreshold(50);
-  mpu.setMotionDetectionDuration(20);
-  mpu.setInterruptPinLatch(true);	// Keep it latched.  Will turn off when reinitialized.
-  mpu.setInterruptPinPolarity(false);
-  mpu.setMotionInterrupt(true);
-  attachInterrupt(digitalPinToInterrupt(mpuIntPin), MpuControl::setMoved, RISING);
 }
 
 bool MpuControl::checkUpsideDown(void)
@@ -44,19 +33,11 @@ bool MpuControl::checkUpsideDown(void)
   return upsideDown;
 }
 
-void MpuControl::setMoved(void)
-{
-  motionDetected = true;
-}
-
-void MpuControl::resetMoved(void)
-{
-  motionDetected = false;
-}
-
 bool MpuControl::checkMotion(void)
 {
-  return motionDetected;;
+  sensors_event_t a;
+  mpu.getEvent(&a, nullptr, nullptr);
+  return a.acceleration.y > 11;
 }
 
 void MpuControl::pollMpu(SensorData &record) 

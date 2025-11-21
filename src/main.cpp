@@ -31,8 +31,7 @@ void setup() {
     {
         // Beep fervantly
         speaker.beep(0.1);
-        delay(100); 
-        mpuSensor.resetMoved();
+        delay(100);
     }
 
     speaker.blare();
