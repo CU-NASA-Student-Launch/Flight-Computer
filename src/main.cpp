@@ -58,8 +58,6 @@ void setup() {
 }
 
 void loop() {
-
-
     bmpSensor.pollBmp(currData);
     mpuSensor.pollMpu(currData);
     currData.t_ms = millis();
