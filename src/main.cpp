@@ -7,6 +7,8 @@
 
 #include "LittleFS.h"
 
+#include <Wire.h> // This is for the specification which pins to use for I2C
+
 BmpControl bmpSensor;
 MpuControl mpuSensor;
 SpeakerControl speaker;
@@ -18,9 +20,9 @@ int logStart = 0;
 void setup() {
     Serial.begin(115200);
     delay(3000);
-    if (!LittleFS.exists("/flight.csv")) {
-        Serial.println(F("NO_FILE_AFTER_HEADER_WRITE"));
-    }
+
+    // specifying I2C pins
+    Wire.begin();
 
     // Establish connection with sensors
     bmpSensor.connectBmp();
@@ -43,6 +45,11 @@ void setup() {
         // Beep fervantly
         speaker.beep(0.1);
         delay(100);
+
+        if(BOOTSEL)
+        {
+            break;
+        }
     }
 
     speaker.blare();

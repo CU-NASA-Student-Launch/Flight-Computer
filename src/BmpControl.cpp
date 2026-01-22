@@ -29,7 +29,6 @@ void BmpControl::connectBmp(void)
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
-  bmp_temp->printSensorDetails();
 }
 
 void BmpControl::pollBmp(SensorData &record) {

@@ -13,8 +13,7 @@ public:
 
 private:
     // Speaker pins
-    const char posPin = 24;
-    const char negPin = 22;
+    const char speakPin = 22;
     
 };
 

@@ -12,12 +12,16 @@ void MpuControl::connectMpu(void)
   {
     Serial.println("Failed to find MPU6050 chip");
   }
+  else
+  {
+    mpu.setAccelerometerRange(MPU6050_RANGE_16_G);
+  }
 }
 
 bool MpuControl::checkUpsideDown(void)
 {
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
+  sensors_event_t a, g;
+  mpu.getEvent(&a, &g, nullptr);
 
   bool upsideDown = true;
   // Check once a second for five seconds
@@ -43,12 +47,12 @@ bool MpuControl::checkMotion(void)
 void MpuControl::pollMpu(SensorData &record) 
 {
   // Get new sensor events with the readings
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
+  sensors_event_t a, g;
+  mpu.getEvent(&a, &g, nullptr);
 
-  record.accelX = a.acceleration.x;
-  record.accelY = a.acceleration.y;
-  record.accelZ = a.acceleration.z;
+  record.accelX = a.acceleration.x + x_bias;
+  record.accelY = a.acceleration.y + y_bias;
+  record.accelZ = a.acceleration.z + z_bias;
   record.gyroX = g.gyro.x;
   record.gyroY = g.gyro.y;
   record.gyroZ = g.gyro.z;
