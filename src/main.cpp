@@ -71,7 +71,7 @@ void loop() {
     currData.t_ms = millis();
     writer.store(currData);
 
-    constexpr int tenMinMilli = 1000*60*10; // Ten minutes in milliseconds
+    constexpr int tenMinMilli = 1000*60*60; // Thirty minutes in milliseconds
 
     if(BOOTSEL || (millis() > (tenMinMilli + logStart)))
     {
