@@ -22,10 +22,7 @@ void setup() {
     delay(3000);
 
     // specifying I2C pins
-    Wire.setSDA(4);
-    Wire.setSCL(5);
     Wire.begin();
-
 
     // Establish connection with sensors
     bmpSensor.connectBmp();
@@ -42,12 +39,17 @@ void setup() {
         speaker.beep(1);
     }
     
-    // Wait for 10 mins after upside-down event
-    for(int i = 0; i < 15; i++)
+    // Wait for 5 mins after upside-down event
+    for(int i = 0; i < 1500; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
         delay(100);
+
+        if(BOOTSEL)
+        {
+            break;
+        }
     }
 
     speaker.blare();
