@@ -30,6 +30,14 @@ void setup() {
 
     writer.initiate(); // loops forever if file is already there
     
+    // Wait for rocket to be right side up before checking if upside down
+    while(!mpuSensor.isUpright())
+    {
+        speaker.beep(1);
+        delay(2000);
+        speaker.beep(1);
+    }
+
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
     while(!mpuSensor.checkUpsideDown())
