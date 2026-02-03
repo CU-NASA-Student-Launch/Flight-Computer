@@ -33,14 +33,6 @@ bool MpuControl::checkUpsideDown(void)
     {
       upsideDown = false;
     }
-    if(a.acceleration.x + x_bias > 2 || a.acceleration.x + x_bias < -2)
-    {
-      upsideDown = false;
-    }
-    if(a.acceleration.z + z_bias > 2 || a.acceleration.z + z_bias < -2)
-    {
-      upsideDown = false;
-    }
     mpu.getEvent(&a, &g, nullptr);
     delay(50);
   }
