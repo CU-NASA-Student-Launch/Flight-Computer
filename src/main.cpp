@@ -22,8 +22,8 @@ void setup() {
     delay(3000);
 
     // specifying I2C pins
-    Wire.setSDA(4);
-    Wire.setSCL(5);
+    // Wire.setSDA(4);
+    // Wire.setSCL(5);
     Wire.begin();
 
 
@@ -35,23 +35,23 @@ void setup() {
     
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
-    while(!mpuSensor.checkUpsideDown())
-    {
-        speaker.beep(1);
-        delay(1000);
-        speaker.beep(1);
-    }
+    // while(!mpuSensor.checkUpsideDown())
+    // {
+    //     speaker.beep(1);
+    //     delay(1000);
+    //     speaker.beep(1);
+    // }
     
-    // Wait for 10 mins after upside-down event
-    for(int i = 0; i < 15; i++)
-    {
-        // Beep fervantly
-        speaker.beep(0.1);
-        delay(100);
-    }
+    // // Wait for 10 mins after upside-down event
+    // for(int i = 0; i < 15; i++)
+    // {
+    //     // Beep fervantly
+    //     speaker.beep(0.1);
+    //     delay(100);
+    // }
 
     speaker.blare();
-    while(!mpuSensor.checkMotion());
+    // while(!mpuSensor.checkMotion());
     logStart = millis();
 }
 
@@ -62,6 +62,10 @@ void loop() {
     mpuSensor.pollMpu(currData);
     currData.t_ms = millis();
     writer.store(currData);
+
+    Serial.printf("X data: %f\n",currData.accelX);
+    Serial.printf("Y data: %f\n",currData.accelY);
+    Serial.printf("Z data: %f\n\n",currData.accelZ);
 
     constexpr int tenMinMilli = 1000*60*10; // Ten minutes in milliseconds
 

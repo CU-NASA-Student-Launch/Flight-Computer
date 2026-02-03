@@ -12,6 +12,9 @@ void MpuControl::connectMpu(void)
   {
     Serial.println("Failed to find MPU6050 chip");
   }
+  else {
+    mpu.setAccelerometerRange(MPU6050_RANGE_2_G);
+  }
 }
 
 bool MpuControl::checkUpsideDown(void)
@@ -46,9 +49,9 @@ void MpuControl::pollMpu(SensorData &record)
   sensors_event_t a, g;
   mpu.getEvent(&a, &g, nullptr);
 
-  record.accelX = a.acceleration.x;
-  record.accelY = a.acceleration.y;
-  record.accelZ = a.acceleration.z;
+  record.accelX = a.acceleration.x - 0.151114707; // includes the calibration offset
+  record.accelY = a.acceleration.y + 0.107349454; // includes the calibration offset
+  record.accelZ = a.acceleration.z + 3.040333951; // includes the calibration offset
   record.gyroX = g.gyro.x;
   record.gyroY = g.gyro.y;
   record.gyroZ = g.gyro.z;
