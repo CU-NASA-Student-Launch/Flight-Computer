@@ -15,6 +15,7 @@ class MpuControl
         void connectMpu(void);
         void pollMpu(SensorData &record);
         bool checkUpsideDown(void);
+        bool isUpright(void);
         bool checkMotion(void);
 
     private:
