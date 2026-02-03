@@ -41,37 +41,10 @@ bool MpuControl::checkUpsideDown(void)
     {
       upsideDown = false;
     }
+    mpu.getEvent(&a, &g, nullptr);
     delay(50);
   }
   return upsideDown;
-}
-
-bool MpuControl::isUpright(void)
-{
-  sensors_event_t a, g;
-  mpu.getEvent(&a, &g, nullptr);
-
-  bool upright = true;
-  
-  // Check once a second for five seconds
-  // If ever right-side up, we haven't been upside-down for long enough
-  for(int i = 0; i < 2; i++)
-  {
-    if(a.acceleration.y + y_bias < -8 && a.acceleration.y + y_bias > -11)
-    {
-      upright = false;
-    }
-    if(a.acceleration.x + x_bias > 2 || a.acceleration.x + x_bias < -2)
-    {
-      upright = false;
-    }
-    if(a.acceleration.z + z_bias > 2 || a.acceleration.z + z_bias < -2)
-    {
-      upright = false;
-    }
-    delay(500);
-  }
-  return upright;
 }
 
 bool MpuControl::checkMotion(void)
