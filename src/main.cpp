@@ -4,6 +4,7 @@
 #include <BmpControl.hpp>
 #include <MpuControl.hpp>
 #include <SpeakerControl.hpp>
+#include <FanControl.hpp>
 
 #include "LittleFS.h"
 
@@ -14,6 +15,7 @@ MpuControl mpuSensor;
 SpeakerControl speaker;
 SensorData currData;
 FsWriter writer;
+FanControl fan;
 
 int logStart = 0;
 
@@ -29,6 +31,8 @@ void setup() {
     mpuSensor.connectMpu();
 
     writer.initiate(); // loops forever if file is already there
+
+    fan.setOn();
 
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
@@ -55,6 +59,7 @@ void setup() {
     speaker.blare();
     while(!mpuSensor.checkMotion());
     logStart = millis();
+    fan.setOff();
 }
 
 void loop() {
@@ -64,11 +69,17 @@ void loop() {
     writer.store(currData);
 
     constexpr int tenMinMilli = 1000*60*60; // Thirty minutes in milliseconds
+    constexpr int oneMinMilli = 1000*60;
 
     if(BOOTSEL || (millis() > (tenMinMilli + logStart)))
     {
         speaker.silence();
         writer.streamFSData();
+    }
+
+    if(millis() > (oneMinMilli + logStart))
+    {
+        fan.setOn();
     }
 
     speaker.beep(0.031);
