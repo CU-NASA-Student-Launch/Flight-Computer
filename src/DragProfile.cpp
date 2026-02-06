@@ -56,7 +56,7 @@ float DragProfile::getDrag(float deployment, float mach) {
     float depFrac = (deployment - depVals[d0]) / (depVals[d1] - depVals[d0]);
     float machFrac = (mach - machVals[m0]) / (machVals[m1] - machVals[m0]);
     
-    // Find values in table
+    // Find values in Cd values in drag matrix
     int columns = size(machVals);
     float lowDlowM = dragProfile[d0 * columns + m0][2];
     float lowDhighM = dragProfile[d0 * columns + m1][2];
