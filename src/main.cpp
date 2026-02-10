@@ -69,7 +69,7 @@ void loop() {
     writer.store(currData);
 
     constexpr int tenMins = 1000*60*10; // Ten minutes in milliseconds
-    constexpr int thirtySecs = 1000*30;
+    constexpr int fifteenSecs = 1000*15; // Fifteen seconds in milliseconds
 
     if(BOOTSEL || (millis() > (tenMins + logStart)))
     {
@@ -78,7 +78,7 @@ void loop() {
     }
 
     // Turn the fan 30 seconds after launch
-    if(millis() > (thirtySecs + logStart))
+    if(millis() > (fifteenSecs + logStart))
     {
         fan.setOn();
     }
