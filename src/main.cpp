@@ -30,9 +30,9 @@ void setup() {
     bmpSensor.connectBmp();
     mpuSensor.connectMpu();
 
-    writer.initiate(); // loops forever if file is already there
-
     fan.setOn();
+
+    writer.initiate(); // loops forever if file is already there
 
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
@@ -68,16 +68,17 @@ void loop() {
     currData.t_ms = millis();
     writer.store(currData);
 
-    constexpr int tenMinMilli = 1000*60*60; // Thirty minutes in milliseconds
-    constexpr int oneMinMilli = 1000*60;
+    constexpr int tenMins = 1000*60*10; // Ten minutes in milliseconds
+    constexpr int thirtySecs = 1000*30;
 
-    if(BOOTSEL || (millis() > (tenMinMilli + logStart)))
+    if(BOOTSEL || (millis() > (tenMins + logStart)))
     {
         speaker.silence();
         writer.streamFSData();
     }
 
-    if(millis() > (oneMinMilli + logStart))
+    // Turn the fan 30 seconds after launch
+    if(millis() > (thirtySecs + logStart))
     {
         fan.setOn();
     }
