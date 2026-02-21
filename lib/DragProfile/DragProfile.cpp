@@ -31,7 +31,7 @@ DragProfile::DragProfile() {
  * @param mach The speed of the rocket in mach.
  * @return The coefficient of drag.
  */
-float DragProfile::getDrag(float deployment, float mach) {
+float DragProfile::getCd(float deployment, float mach) {
     // clamping inputs
     if (deployment < 0) deployment = 0;
     if (deployment > 1) deployment = 1;
@@ -87,7 +87,7 @@ float DragProfile::getDrag(float deployment, float mach) {
  */
 float DragProfile::updateProfile(float measuredCd, float deployment, float mach) {
     // clamping occurs inside of the getDrag function
-    float profileCd = getDrag(deployment, mach);
+    float profileCd = getCd(deployment, mach);
     float offset = measuredCd - profileCd;
 
     for(int i = 0; i < 35; ++i) {

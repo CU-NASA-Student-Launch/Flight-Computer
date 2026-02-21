@@ -10,7 +10,7 @@ using namespace std;
 class DragProfile {
     public:
         DragProfile();
-        float getDrag(float deployment, float mach);
+        float getCd(float deployment, float mach);
         float updateProfile(float measuredCd, float deployment, float mach);
     
     private:
