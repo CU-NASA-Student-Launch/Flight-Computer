@@ -1,5 +1,4 @@
 #include "DragProfile.hpp"
-#include <iostream>
 
 using namespace std;
 
