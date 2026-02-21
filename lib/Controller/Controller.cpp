@@ -2,15 +2,18 @@
 
 using namespace std;
 
-Controller::Controller(float burnoutMass, float burnoutTime, float projectedArea) {
+Controller::Controller(float burnoutMass, float burnoutTime, float projectedArea, int samplingRate) {
     BURNOUT_MASS = burnoutMass;
     BURNOUT_TIME = burnoutTime;
     PROJECTED_AREA = projectedArea;
     deploymentLev = 0.0;
     dragProfile = DragProfile();
+    SAMPLE_RATE = samplingRate;
 }
 
 void Controller::adjustAirbrakes(State currentState, State lastState) {
+    float angle = getAngle(currentState);
+
     // should physically set the angle of the airbrakes
 }
 
@@ -20,14 +23,21 @@ float Controller::getAngle(State currentState) {
         return 0.0;
     }
 
+    float rocketCd;
     // the coefficient of drag equation used is inaccurate at low velocities
     if(currentState.vz > 20) {
-        float rocketCd = calculateCd(currentState);
+        rocketCd = calculateCd(currentState);
         dragProfile.updateProfile(rocketCd, deploymentLev, currentState.vMach);
     }
     else {
-        float rocketCd = dragProfile.getCd(deploymentLev, currentState.vMach);
+        rocketCd = dragProfile.getCd(deploymentLev, currentState.vMach);
     }
+
+    float prediction = predictApogee(currentState, rocketCd, deploymentLev);
+
+    float angle = seekDepTarget(prediction, currentState, rocketCd);
+
+    return angle;
 }
 
 float Controller::calculateCd(State currentState) {
@@ -48,19 +58,19 @@ float Controller::calculateCd(State currentState) {
     return cd;
 }
 
-float Controller::predictApogee(State currentState, float currentCd) {
-    float rho = currentState.airDensity;
-    float vTemp = currentState.v;
-    float yTemp = currentState.altASL;
+float Controller::predictApogee(State state, float currentCd, float deployment) {
+    float rho = state.airDensity;
+    float vTemp = state.v;
+    float yTemp = state.altASL;
     float dt = 0.01;
     float cdLive = currentCd;
 
     while (vTemp > 0) {
-        if (yTemp != currentState.altASL) {
+        if (yTemp != state.altASL) {
             // need to write code to update rhoe with std atm map
 
             // find cd at new velocity
-            cdLive = dragProfile.getCd(deploymentLev, (vTemp/speedOfSound(yTemp)));
+            cdLive = dragProfile.getCd(deployment, (vTemp/speedOfSound(yTemp)));
         }
 
         rk4Step(yTemp, vTemp, dt, rho, cdLive);
@@ -92,4 +102,53 @@ float Controller::rk4Helper(float& ky, float& kv, float v, float cd, float rho) 
     float refArea = 0.001;
     ky = v;
     kv = -9.807 - 0.5 * rho * cd * 0.001/BURNOUT_MASS * v * abs(v);
+}
+
+float Controller::seekDepTarget(float prediction, State currentState, float cd) {
+    float targetApogee = 1400 + 932; // in ASL
+    float trustGain = 0.5;
+    float error = (prediction - targetApogee) * trustGain;
+
+    float nrDep = deploymentLev;
+    float nrDelta = 0.05;
+
+    bool cutoffReached = false;
+
+    while(abs(error) > 5 && !cutoffReached) {
+        while(error > 0) {
+            // Current prediction is larger than target, so proceed to the right on the
+            // altitude vs. deployment angle curve
+            nrDep = nrDep + nrDelta;
+
+            if(nrDep > 0.5) {
+                cutoffReached = true;
+                nrDep = 0.5;
+                break;
+            }
+
+            prediction = predictApogee(currentState, cd, nrDep + nrDelta);
+            error = (prediction - targetApogee) * trustGain;
+        }
+        while(error < 0) {
+            // Current prediction is less than target, so proceed to the left on the
+            // altitude vs. deployment angle curve
+            nrDep = nrDep - nrDelta;
+
+            if(nrDep < 0) {
+                cutoffReached = true;
+                nrDep = 0;
+                break;
+            }
+
+            prediction = predictApogee(currentState, cd, nrDep - nrDelta);
+            error = (prediction - targetApogee) * trustGain;
+        }
+    }
+     
+    float maxChange = 0.3 / SAMPLE_RATE;
+    float lowerBound = deploymentLev - maxChange;
+    float upperBound = deploymentLev + maxChange;
+    nrDep = min(max(nrDep, lowerBound), upperBound);
+    
+    return nrDep;
 }
