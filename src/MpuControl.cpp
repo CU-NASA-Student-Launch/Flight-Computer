@@ -18,40 +18,32 @@ void MpuControl::connectMpu(void)
   }
 }
 
-bool MpuControl::checkUpsideDown(void)
+bool MpuControl::checkTilt(void)
 {
   sensors_event_t a, g;
   mpu.getEvent(&a, &g, nullptr);
 
-  bool upsideDown = true;
+  bool tilted = true;
   
   // Check once a second for five seconds
   // If ever right-side up, we haven't been upside-down for long enough
   for(int i = 0; i < 100; i++)
   {
-    if(a.acceleration.y + y_bias > -9.3 || a.acceleration.y + y_bias < -10.5)
+    if(a.acceleration.x + x_bias > -2 || a.acceleration.x + x_bias < -7)
     {
-      upsideDown = false;
-    }
-    if(a.acceleration.x + x_bias > 2 || a.acceleration.x + x_bias < -2)
-    {
-      upsideDown = false;
-    }
-    if(a.acceleration.z + z_bias > 2 || a.acceleration.z + z_bias < -2)
-    {
-      upsideDown = false;
+      tilted = false;
     }
     mpu.getEvent(&a, &g, nullptr);
     delay(50);
   }
-  return upsideDown;
+  return tilted;
 }
 
 bool MpuControl::checkMotion(void)
 {
   sensors_event_t a;
   mpu.getEvent(&a, nullptr, nullptr);
-  return a.acceleration.y < -11;
+  return a.acceleration.x < -11;
 }
 
 void MpuControl::pollMpu(SensorData &record) 

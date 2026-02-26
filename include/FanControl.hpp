@@ -12,7 +12,7 @@ public:
 
 private:
     // Speaker pins
-    const char fanPin = 19;
+    const char fanPin = 21;
     
 };
 

@@ -5,17 +5,19 @@
 #include <MpuControl.hpp>
 #include <SpeakerControl.hpp>
 #include <FanControl.hpp>
+#include <CamControl.hpp>
 
 #include "LittleFS.h"
 
 #include <Wire.h> // This is for the specification which pins to use for I2C
 
-BmpControl bmpSensor;
+//BmpControl bmpSensor;
 MpuControl mpuSensor;
 SpeakerControl speaker;
 SensorData currData;
 FsWriter writer;
 FanControl fan;
+CamControl cam;
 
 int logStart = 0;
 
@@ -27,7 +29,7 @@ void setup() {
     Wire.begin();
 
     // Establish connection with sensors
-    bmpSensor.connectBmp();
+    //bmpSensor.connectBmp();
     mpuSensor.connectMpu();
 
     fan.setOn();
@@ -36,15 +38,30 @@ void setup() {
 
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
-    while(!mpuSensor.checkUpsideDown())
-    {
-        speaker.beep(1);
-        delay(1000);
-        speaker.beep(1);
-    }
+    // while(!mpuSensor.checkTilt())
+    // {
+    //     speaker.beep(1);
+    //     delay(1000);
+    //     speaker.beep(1);
+    // }
     
-    // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 1500; i++)
+    // Wait for 3 mins after tilt event
+    for(int i = 0; i < 900; i++)
+    {
+        // Beep fervantly
+        speaker.beep(0.1);
+        delay(100);
+
+        if(BOOTSEL)
+        {
+            break;
+        }
+    }
+
+    cam.setOn();
+
+    // Wait for 2 mins after giving camera power
+    for(int i = 0; i < 600; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
@@ -63,7 +80,7 @@ void setup() {
 }
 
 void loop() {
-    bmpSensor.pollBmp(currData);
+    //bmpSensor.pollBmp(currData);
     mpuSensor.pollMpu(currData);
     currData.t_ms = millis();
     writer.store(currData);
@@ -74,6 +91,7 @@ void loop() {
     if(BOOTSEL || (millis() > (tenMins + logStart)))
     {
         speaker.silence();
+        fan.setOn();
         writer.streamFSData();
     }
 

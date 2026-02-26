@@ -14,15 +14,15 @@ class MpuControl
         // Member functions
         void connectMpu(void);
         void pollMpu(SensorData &record);
-        bool checkUpsideDown(void);
+        bool checkTilt(void);
         bool isUpright(void);
         bool checkMotion(void);
 
     private:
         Adafruit_MPU6050 mpu;
-        float x_bias = -0.076;
-        float y_bias = -0.14;
-        float z_bias = 2.86;
+        float x_bias = 0;
+        float y_bias = 0;
+        float z_bias = 0;
 };
 
 #endif // MPU_CONTROL_HPP
