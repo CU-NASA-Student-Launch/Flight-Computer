@@ -29,7 +29,7 @@ bool MpuControl::checkTilt(void)
   // If ever right-side up, we haven't been upside-down for long enough
   for(int i = 0; i < 100; i++)
   {
-    if(a.acceleration.x + x_bias > -2 || a.acceleration.x + x_bias < -7)
+    if(a.acceleration.x < 2 || a.acceleration.x > 8)
     {
       tilted = false;
     }
@@ -52,9 +52,9 @@ void MpuControl::pollMpu(SensorData &record)
   sensors_event_t a, g;
   mpu.getEvent(&a, &g, nullptr);
 
-  record.accelX = a.acceleration.x + x_bias;
-  record.accelY = a.acceleration.y + y_bias;
-  record.accelZ = a.acceleration.z + z_bias;
+  record.accelX = a.acceleration.x;
+  record.accelY = a.acceleration.y;
+  record.accelZ = a.acceleration.z;
   record.gyroX = g.gyro.x;
   record.gyroY = g.gyro.y;
   record.gyroZ = g.gyro.z;

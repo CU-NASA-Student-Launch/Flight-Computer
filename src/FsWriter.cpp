@@ -13,6 +13,16 @@ FsWriter::~FsWriter()
 
 }
 
+void FsWriter::checkForFile()
+{
+    LittleFS.begin();
+    
+    if (LittleFS.exists("/flight.csv")) 
+    {
+        this->streamFSData();
+    }
+}
+
 void FsWriter::initiate() {
     LittleFS.begin();
     

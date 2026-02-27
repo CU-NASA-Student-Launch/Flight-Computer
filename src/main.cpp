@@ -34,16 +34,18 @@ void setup() {
 
     fan.setOn();
 
-    writer.initiate(); // loops forever if file is already there
+    writer.checkForFile(); // loops forever if file is already there
 
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
-    // while(!mpuSensor.checkTilt())
-    // {
-    //     speaker.beep(1);
-    //     delay(1000);
-    //     speaker.beep(1);
-    // }
+    while(!mpuSensor.checkTilt())
+    {
+        speaker.beep(1);
+        delay(1000);
+        speaker.beep(1);
+    }
+
+    writer.initiate(); // Only create file after arming
     
     // Wait for 3 mins after tilt event
     for(int i = 0; i < 900; i++)

@@ -20,9 +20,6 @@ class MpuControl
 
     private:
         Adafruit_MPU6050 mpu;
-        float x_bias = 0;
-        float y_bias = 0;
-        float z_bias = 0;
 };
 
 #endif // MPU_CONTROL_HPP

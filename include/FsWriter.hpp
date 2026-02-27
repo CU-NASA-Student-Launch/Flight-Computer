@@ -18,6 +18,8 @@ class FsWriter {
         void store(SensorData &record);
 
         void streamFSData();
+
+        void checkForFile();
         
     private:
         std::array<SensorData, 200> sensorDataBuff;
