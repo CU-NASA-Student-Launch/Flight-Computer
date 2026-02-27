@@ -19,7 +19,7 @@ FsWriter writer;
 FanControl fan;
 CamControl cam;
 
-int logStart = 0;
+unsigned long logStart = 0;
 
 void setup() {
     Serial.begin(115200);
@@ -37,7 +37,6 @@ void setup() {
     writer.checkForFile(); // loops forever if file is already there
 
     // Wait for rocket to be turned upside down for five seconds
-    // before starting logging.
     while(!mpuSensor.checkTilt())
     {
         speaker.beep(1);
@@ -97,7 +96,7 @@ void loop() {
         writer.streamFSData();
     }
 
-    // Turn the fan 30 seconds after launch
+    // Turn the fan on 15 seconds after launch
     if(millis() > (fifteenSecs + logStart))
     {
         fan.setOn();
