@@ -3,8 +3,6 @@
 
 #endif // STATE_HPP
 
-using namespace std;
-
 struct State {
     unsigned long msTime; // time in milliseconds
     float altASL; // altitude above sea level in meters

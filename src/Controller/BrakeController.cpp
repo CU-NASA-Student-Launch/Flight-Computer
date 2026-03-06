@@ -1,25 +1,24 @@
-#include "Controller.hpp"
+#include "BrakeController.hpp"
 
-using namespace std;
-
-Controller::Controller(float burnoutMass, float burnoutTime, float projectedArea, int samplingRate) {
-    BURNOUT_MASS = burnoutMass;
-    BURNOUT_TIME = burnoutTime;
-    PROJECTED_AREA = projectedArea;
+BrakeController::BrakeController(float burnoutMass, float burnoutTime, float projectedArea, int samplingRate) {
+    rocketBurnoutMass = burnoutMass;
+    motorBurnoutTime = burnoutTime;
+    rocketArea = projectedArea;
     deploymentLev = 0.0;
     dragProfile = DragProfile();
-    SAMPLE_RATE = samplingRate;
+    pollRate = samplingRate;
 }
 
-void Controller::adjustAirbrakes(State currentState, State lastState) {
+void BrakeController::adjustAirbrakes(State currentState, State lastState) {
     float angle = getAngle(currentState);
 
     // should physically set the angle of the airbrakes
 }
 
-float Controller::getAngle(State currentState) {
+float BrakeController::getAngle(State currentState) {
     // if pre-burnout
-    if (currentState.msTime < BURNOUT_TIME) {
+    // need to change this to detect negative acceleration for burnout detection
+    if (currentState.msTime < motorBurnoutTime) {
         return 0.0;
     }
 
@@ -40,10 +39,10 @@ float Controller::getAngle(State currentState) {
     return angle;
 }
 
-float Controller::calculateCd(State currentState) {
-    float numer = BURNOUT_MASS * abs(-9.807 - currentState.az);
+float BrakeController::calculateCd(State currentState) {
+    float numer = rocketBurnoutMass * abs(-9.807 - currentState.az);
     float denom = 0.5 * currentState.airDensity * currentState.vz * currentState.vz 
-        * (PROJECTED_AREA + 0.0001 * (deploymentLev * 40));
+        * (rocketArea + 0.0001 * (deploymentLev * 40));
     
     float cd = numer/denom;
 
@@ -58,7 +57,7 @@ float Controller::calculateCd(State currentState) {
     return cd;
 }
 
-float Controller::predictApogee(State state, float currentCd, float deployment) {
+float BrakeController::predictApogee(State state, float currentCd, float deployment) {
     float rho = state.airDensity;
     float vTemp = state.v;
     float yTemp = state.altASL;
@@ -67,7 +66,7 @@ float Controller::predictApogee(State state, float currentCd, float deployment) 
 
     while (vTemp > 0) {
         if (yTemp != state.altASL) {
-            // need to write code to update rhoe with std atm map
+            // need to write code to update rho with std atm map
 
             // find cd at new velocity
             cdLive = dragProfile.getCd(deployment, (vTemp/speedOfSound(yTemp)));
@@ -79,11 +78,11 @@ float Controller::predictApogee(State state, float currentCd, float deployment) 
     return yTemp;
 }
 
-float Controller::speedOfSound(float altitudeASL) {
-
+float BrakeController::speedOfSound(float altitudeASL) {
+    return 360; // could change this to dynamic if needed
 }
 
-void Controller::rk4Step(float& y, float& v, float dt, float rho, float cd) {
+void BrakeController::rk4Step(float& y, float& v, float dt, float rho, float cd) {
     float k1y, k1v;
     float k2y, k2v;
     float k3y, k3v;
@@ -98,13 +97,13 @@ void Controller::rk4Step(float& y, float& v, float dt, float rho, float cd) {
     v = v + (dt / 6.0) * (k1v + 2 * k2v + 2 * k3v + k4v);
 }
 
-float Controller::rk4Helper(float& ky, float& kv, float v, float cd, float rho) {
+void BrakeController::rk4Helper(float& ky, float& kv, float v, float cd, float rho) {
     float refArea = 0.001;
     ky = v;
-    kv = -9.807 - 0.5 * rho * cd * 0.001/BURNOUT_MASS * v * abs(v);
+    kv = -9.807 - 0.5 * rho * cd * 0.001/rocketBurnoutMass * v * abs(v);
 }
 
-float Controller::seekDepTarget(float prediction, State currentState, float cd) {
+float BrakeController::seekDepTarget(float prediction, State currentState, float cd) {
     float targetApogee = 1400 + 932; // in ASL
     float trustGain = 0.5;
     float error = (prediction - targetApogee) * trustGain;
@@ -143,12 +142,16 @@ float Controller::seekDepTarget(float prediction, State currentState, float cd) 
             prediction = predictApogee(currentState, cd, nrDep - nrDelta);
             error = (prediction - targetApogee) * trustGain;
         }
+        if(error == 0) {
+            // this is just to prevent an infinite loop if error was ever exactly 0
+            return deploymentLev;
+        }
     }
      
-    float maxChange = 0.3 / SAMPLE_RATE;
+    float maxChange = 0.3 / pollRate;
     float lowerBound = deploymentLev - maxChange;
     float upperBound = deploymentLev + maxChange;
-    nrDep = min(max(nrDep, lowerBound), upperBound);
+    nrDep = std::min(std::max(nrDep, lowerBound), upperBound);
     
     return nrDep;
 }

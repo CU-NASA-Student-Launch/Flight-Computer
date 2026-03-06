@@ -6,11 +6,9 @@
 #ifndef CONTROLLER_HPP
 #define CONTROLLER_HPP
 
-using namespace std;
-
-class Controller {
+class BrakeController {
     public:
-        Controller(float burnoutMass, float burnoutTime, float projectedArea, int samplingRate);
+        BrakeController(float burnoutMass, float burnoutTime, float projectedArea, int samplingRate);
         void adjustAirbrakes(State currentState, State lastState);
     private:
         float getAngle(State currentState);
@@ -18,14 +16,14 @@ class Controller {
         float predictApogee(State state, float currentCd, float deployment);
         float speedOfSound(float altitudeASL);
         void rk4Step(float& y, float& v, float dt, float rho, float cd);
-        float rk4Helper(float& ky, float& kv, float v, float cd, float rho);
+        void rk4Helper(float& ky, float& kv, float v, float cd, float rho);
         float seekDepTarget(float prediction, State currentState, float cd);
-        float BURNOUT_MASS;
-        float BURNOUT_TIME;
-        float PROJECTED_AREA;
+        float rocketBurnoutMass;
+        float motorBurnoutTime;
+        float rocketArea;
         float deploymentLev;
         DragProfile dragProfile;
-        int SAMPLE_RATE;
+        int pollRate;
 };
 
 #endif // CONTROLLER_HPP

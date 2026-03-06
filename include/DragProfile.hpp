@@ -5,8 +5,6 @@
 #include <vector>
 #include <algorithm>
 
-using namespace std;
-
 class DragProfile {
     public:
         DragProfile();
@@ -17,8 +15,8 @@ class DragProfile {
         // Want two vectors (depVals and machVals) that contain
         // all the unique values for each of those axes
     
-        vector<float> depVals;
-        vector<float> machVals;
+        std::vector<float> depVals;
+        std::vector<float> machVals;
 
         // if size is changed from 35, need to update loops in constructor
         float dragProfile[35][3] = {

@@ -1,7 +1,5 @@
 #include "DragProfile.hpp"
 
-using namespace std;
-
 DragProfile::DragProfile() {
     // Want two vectors (depVals and machVals) that contain
     // all the unique values for each of those axes
@@ -9,18 +7,18 @@ DragProfile::DragProfile() {
     for (int i = 0; i < 35; ++i) {
         depVals.push_back(dragProfile[i][0]);
     }
-    sort(depVals.begin(),depVals.end());
+    std::sort(depVals.begin(),depVals.end());
 
     // removing duplicates
-    depVals.erase(unique(depVals.begin(), depVals.end()), depVals.end());
+    depVals.erase(std::unique(depVals.begin(), depVals.end()), depVals.end());
 
     for (int i = 0; i < 35; ++i) {
         machVals.push_back(dragProfile[i][1]);
     }
-    sort(machVals.begin(),machVals.end());
+    std::sort(machVals.begin(),machVals.end());
 
     // removing duplicates
-    machVals.erase(unique(machVals.begin(), machVals.end()), machVals.end());
+    machVals.erase(std::unique(machVals.begin(), machVals.end()), machVals.end());
 }
 
 /**
