@@ -15,8 +15,9 @@ FsWriter::~FsWriter()
 
 void FsWriter::checkForFile()
 {
-    LittleFS.begin();
+    LittleFS.begin(); // Initialize filesystem
     
+    // Check if file exists. If so, enter loop that talks to python script. 
     if (LittleFS.exists("/flight.csv")) 
     {
         this->streamFSData();
@@ -59,6 +60,8 @@ void FsWriter::flush() {
 void FsWriter::store(SensorData &record) 
 {
     // Check if the buffer is full before writing
+    // The buffer is used to write data in large chunks. This saves time as writing to
+    // flash is a very slow operation and flash wears out over time.
     if(currBuffLoc == sensorDataBuff.size()-1)
     {
         this->flush();
@@ -69,6 +72,7 @@ void FsWriter::store(SensorData &record)
     currBuffLoc++;
 }
 
+// This function talks to a python script that coordinates the transmission of the data.
 void FsWriter::streamFSData() {
   while(1) {
         while (!Serial) delay(10);
