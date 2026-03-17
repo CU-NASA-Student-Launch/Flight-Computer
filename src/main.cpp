@@ -45,10 +45,10 @@ void setup() {
     while(!mpuSensor.checkTilt())
     {
         servo.adjustAngle(40);
-        //speaker.beep(1);
+        speaker.beep(1);
         delay(1000);
         servo.adjustAngle(0);
-        //speaker.beep(1);
+        speaker.beep(1);
     }
 
     // Initializes filesystem and creates file after check for preexisting file.
