@@ -15,6 +15,7 @@ void MpuControl::connectMpu(void)
   else
   {
     mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+    mpu.setGyroRange(MPU6050_RANGE_1000_DEG);
   }
 }
 
@@ -43,7 +44,7 @@ bool MpuControl::checkMotion(void)
 {
   sensors_event_t a;
   mpu.getEvent(&a, nullptr, nullptr);
-  return a.acceleration.x < -11;
+  return a.acceleration.x > 0;
 }
 
 void MpuControl::pollMpu(SensorData &record) 

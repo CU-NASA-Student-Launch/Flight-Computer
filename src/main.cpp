@@ -29,6 +29,7 @@ void setup() {
 
     // Initialize pico pins
     Wire.begin();
+    Wire.setClock(400000);  // I2C running at 400 kHz
 
     // Establish connection with sensors
     bmpSensor.connectBmp();
@@ -100,6 +101,10 @@ void setup() {
     fan.setOff();
 }
 
+/*
+This first core will poll data from the sensors.
+
+*/
 void loop() {
     // Grab data from each of the sensors and store in the currData object.
     bmpSensor.pollBmp(currData);
@@ -109,26 +114,38 @@ void loop() {
     // This check is done in the store method.
     writer.store(currData);
 
-    constexpr int tenMins = 1000*60*10; // Ten minutes in milliseconds
     constexpr int fifteenSecs = 1000*15; // Fifteen seconds in milliseconds
+    constexpr int tenMins = 1000*60*10; // Fifteen seconds in milliseconds
 
-    // Got data for 10 mins after launch event. For logging purposes, if little
+    // Got data for 15 secs after launch event. For logging purposes, if little
     // button on the board is pressed, stop logging early.
     if(BOOTSEL || (millis() > (tenMins + logStart)))
     {
         speaker.silence(); // When speaker is quiet, you know logging has stopped.
         fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
-        writer.streamFSData(); // Enter loop that listens for usb connection.
+        writer.flush();
+        writer.closeFile();
+        writer.streamFSData();
     }
 
-    // Turn the fan on 15 seconds after launch.
-    // Fan MUST remain on when camera is on to prevent damage!
     if(millis() > (fifteenSecs + logStart))
     {
-        fan.setOn();
+        fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
     }
 
     // Manual delay to slow down rate of logging. Makes goofy jittery sound because 
     // beep is for duration of the delay.
-    speaker.beep(0.001);
+    speaker.beep(0.002);
+}
+
+void loop1()
+{
+    constexpr int thirtyMins = 1000*60*10; // Ten minutes in milliseconds
+
+    // Turn camera and fan off ten mins after launch
+    if(millis() > (thirtyMins + logStart))
+    {
+        cam.setOff();
+        fan.setOff();
+    }
 }

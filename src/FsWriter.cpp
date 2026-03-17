@@ -1,7 +1,3 @@
-#include <Arduino.h>
-#include <array>
-#include "LittleFS.h"
-#include <SensorData.hpp>
 #include <FsWriter.hpp>
 
 FsWriter::FsWriter() {
@@ -15,49 +11,51 @@ FsWriter::~FsWriter()
 
 void FsWriter::checkForFile()
 {
-    LittleFS.begin(); // Initialize filesystem
-    
+    LittleFS.begin();
+
     // Check if file exists. If so, enter loop that talks to python script. 
-    if (LittleFS.exists("/flight.csv")) 
+    if (LittleFS.exists("/flight.bin")) 
     {
         this->streamFSData();
     }
 }
 
-void FsWriter::initiate() {
+void FsWriter::initiate()
+{
     LittleFS.begin();
-    
-    if (!LittleFS.exists("/flight.csv")) {
-        File f = LittleFS.open("/flight.csv", "a");
-        
-        f.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m)");
-        f.close();
+
+    if (!LittleFS.exists("/flight.bin"))
+    {
+        logFile = LittleFS.open("/flight.bin", "w");
     }
-    else {
+    else
+    {
         this->streamFSData();
     }
 }
 
-void FsWriter::flush() {
-    File f = LittleFS.open("/flight.csv", "a");
-    if (!f) { Serial.println("file open fail"); return; }
+void FsWriter::flush()
+{
+    if (!logFile) return;
 
-    // flushing whatever is in the buffer to the file
-    for (int i = 0; i < currBuffLoc; i++) {
-        f.printf("%ld,", sensorDataBuff[i].t_ms);
-        f.printf("%f,", sensorDataBuff[i].accelX);
-        f.printf("%f,", sensorDataBuff[i].accelY);
-        f.printf("%f,", sensorDataBuff[i].accelZ);
-        f.printf("%f,", sensorDataBuff[i].gyroX);
-        f.printf("%f,", sensorDataBuff[i].gyroY);
-        f.printf("%f,", sensorDataBuff[i].gyroZ);
-        f.printf("%f,", sensorDataBuff[i].pressure);
-        f.printf("%f\n", sensorDataBuff[i].altitude);
-    }
-    f.close();
+    int count = currBuffLoc;
+    if (count == 0) return;
+
+    // Write raw SensorData structs directly
+    logFile.write(
+        (uint8_t*)&sensorDataBuff[0],
+        count * sizeof(SensorData)
+    );
+
+    currBuffLoc = 0;
 }
 
-void FsWriter::store(SensorData &record) 
+void FsWriter::closeFile()
+{
+    logFile.close();
+}
+
+void FsWriter::store(SensorData &record)
 {
     // Check if the buffer is full before writing
     // The buffer is used to write data in large chunks. This saves time as writing to
@@ -78,54 +76,71 @@ void FsWriter::streamFSData() {
         while (!Serial) delay(10);
 
         String word = Serial.readStringUntil('\n');
-        
-        if (word == "GET") {
+
+        if (word == "GET")
+        {
             Serial.println("ACK: GET");
-        
-            // stream file
 
-            if (!LittleFS.begin()) {
-                Serial.println("Mount failed!");
-                return;
+            if (!LittleFS.exists("/flight.bin"))
+            {
+                Serial.println("FILE_NOT_FOUND");
+                continue;
             }
 
-            if (LittleFS.exists("/flight.csv")) {
-                File f = LittleFS.open("/flight.csv", "r");
-                if (!f) {
-                    Serial.println("CANNOT_OPEN_FILE");
-                    return;
-                }
+            File f = LittleFS.open("/flight.bin", "r");
+            if (!f)
+            {
+                Serial.println("CANNOT_OPEN_FILE");
+                continue;
+            }
 
-                Serial.println(F("BEGIN_FILE"));
-                while (f.available()) {
-                    uint8_t b = f.read();
-                    Serial.write(b);      // raw binary stream
-                }
-                f.close();
-                Serial.println(F("END_FILE"));
-                Serial.setTimeout(300000); // waits for 5 minutes
-                String word = Serial.readStringUntil('\n');
-                bool removal;
-                if (word == "ACK") {
-                    String word = Serial.readStringUntil('\n');
-                    if (word == "YES") {
-                        removal = LittleFS.remove("/flight.csv");
-                        if (!removal) {
-                            Serial.println(F("Unable to remove old flight.csv. ACK not received by Pico."));
-                        }
-                        else {
-                            Serial.println(F("Removed flight.csv from flash"));
-                        }
+            Serial.println("BEGIN_FILE");
+
+            Serial.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m)");
+
+            SensorData record;
+
+            while (f.read((uint8_t*)&record, sizeof(SensorData)) == sizeof(SensorData))
+            {
+                Serial.printf("%lu,%f,%f,%f,%f,%f,%f,%f,%f\n",
+                              record.t_ms,
+                              record.accelX,
+                              record.accelY,
+                              record.accelZ,
+                              record.gyroX,
+                              record.gyroY,
+                              record.gyroZ,
+                              record.pressure,
+                              record.altitude);
+            }
+
+            f.close();
+
+            Serial.println("END_FILE");
+
+            Serial.setTimeout(300000);  // 5 minutes
+            String response = Serial.readStringUntil('\n');
+
+            if (response == "ACK")
+            {
+                String decision = Serial.readStringUntil('\n');
+
+                if (decision == "YES")
+                {
+                    if (!LittleFS.remove("/flight.bin"))
+                    {
+                        Serial.println("Unable to remove old flight.bin.");
                     }
-                    else if (word == "NO") {
-                        Serial.println(F("Keeping flight.csv on flash."));
+                    else
+                    {
+                        Serial.println("Removed flight.bin from flash");
                     }
                 }
+                else if (decision == "NO")
+                {
+                    Serial.println("Keeping flight.bin on flash.");
+                }
             }
-            else {
-                Serial.println(F("FILE_NOT_FOUND"));
-            }
-        
         }
     }
 }

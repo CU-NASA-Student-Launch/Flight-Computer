@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <array>
-#include "SensorData.hpp"
+#include "LittleFS.h"
+#include <atomic>
+#include <SensorData.hpp>
 
 #ifndef FS_WRITER_HPP
 #define FS_WRITER_HPP
@@ -20,10 +22,13 @@ class FsWriter {
         void streamFSData();
 
         void checkForFile();
+
+        void closeFile();
         
     private:
-        std::array<SensorData, 200> sensorDataBuff;
+        std::array<SensorData, 5000> sensorDataBuff;
         int currBuffLoc = 0;
+        File logFile;
 };
 
 #endif // FS_WRITER

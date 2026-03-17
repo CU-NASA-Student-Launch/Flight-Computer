@@ -3,7 +3,7 @@
 #ifndef SENSOR_DATA_HPP
 #define SENSOR_DATA_HPP
 
-struct SensorData
+struct __attribute__((packed)) SensorData
 {
     uint32_t t_ms;
     float accelX;
