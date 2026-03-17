@@ -44,11 +44,11 @@ void setup() {
     // Wait for rocket to be held at ~45° nose down for five seconds
     while(!mpuSensor.checkTilt())
     {
-        servo.adjustAngle(90);
-        speaker.beep(1);
+        servo.adjustAngle(40);
+        //speaker.beep(1);
         delay(1000);
         servo.adjustAngle(0);
-        speaker.beep(1);
+        //speaker.beep(1);
     }
 
     // Initializes filesystem and creates file after check for preexisting file.
