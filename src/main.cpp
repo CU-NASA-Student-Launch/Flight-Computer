@@ -23,6 +23,7 @@ void setup() {
 
     // specifying I2C pins
     Wire.begin();
+    Wire.setClock(400000L);
 
     // Establish connection with sensors
     bmpSensor.connectBmp();
@@ -32,25 +33,25 @@ void setup() {
 
     // Wait for rocket to be turned upside down for five seconds
     // before starting logging.
-    while(!mpuSensor.checkUpsideDown())
-    {
-        speaker.beep(1);
-        delay(1000);
-        speaker.beep(1);
-    }
+    // while(!mpuSensor.checkUpsideDown())
+    // {
+    //     speaker.beep(1);
+    //     delay(1000);
+    //     speaker.beep(1);
+    // }
     
     // Wait for 5 mins after upside-down event
-    for(int i = 0; i < 1500; i++)
-    {
-        // Beep fervantly
-        speaker.beep(0.1);
-        delay(100);
+    // for(int i = 0; i < 1500; i++)
+    // {
+    //     // Beep fervantly
+    //     speaker.beep(0.1);
+    //     delay(100);
 
-        if(BOOTSEL)
-        {
-            break;
-        }
-    }
+    //     if(BOOTSEL)
+    //     {
+    //         break;
+    //     }
+    // }
 
     speaker.blare();
     while(!mpuSensor.checkMotion());
@@ -71,5 +72,5 @@ void loop() {
         writer.streamFSData();
     }
 
-    speaker.beep(0.031);
+    speaker.beep(0.002);
 }

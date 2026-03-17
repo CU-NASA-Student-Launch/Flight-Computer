@@ -20,7 +20,7 @@ class FsWriter {
         void streamFSData();
         
     private:
-        std::array<SensorData, 200> sensorDataBuff;
+        std::array<SensorData, 5000> sensorDataBuff;
         int currBuffLoc = 0;
 };
 

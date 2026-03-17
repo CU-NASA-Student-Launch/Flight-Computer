@@ -43,7 +43,7 @@ bool MpuControl::checkMotion(void)
 {
   sensors_event_t a;
   mpu.getEvent(&a, nullptr, nullptr);
-  return a.acceleration.y < -11;
+  return a.acceleration.y < 0;
 }
 
 void MpuControl::pollMpu(SensorData &record) 
