@@ -25,7 +25,7 @@ void BmpControl::connectBmp(void)
   // Default settings from datasheet.
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
                   Adafruit_BMP280::SAMPLING_NONE,     /* Temp. oversampling */
-                  Adafruit_BMP280::SAMPLING_NONE,    /* Pressure oversampling */
+                  Adafruit_BMP280::SAMPLING_X1,    /* Pressure oversampling */
                   Adafruit_BMP280::FILTER_OFF,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_1); /* Standby time. */
 
