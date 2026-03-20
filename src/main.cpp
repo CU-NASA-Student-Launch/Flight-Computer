@@ -113,11 +113,11 @@ void loop() {
     writer.store(currData);
 
     constexpr int fifteenSecs = 1000*15; // Fifteen seconds in milliseconds
-    constexpr int tenMins = 1000*60*10; // Fifteen seconds in milliseconds
+    constexpr int fiveMins = 1000*60*5; // Five mins in milliseconds
 
     // Got data for 15 secs after launch event. For logging purposes, if little
     // button on the board is pressed, stop logging early.
-    if(BOOTSEL || (millis() > (tenMins + logStart)))
+    if(BOOTSEL || (millis() > (fiveMins + logStart)))
     {
         speaker.silence(); // When speaker is quiet, you know logging has stopped.
         fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
@@ -138,10 +138,10 @@ void loop() {
 
 void loop1()
 {
-    constexpr int thirtyMins = 1000*60*10; // Ten minutes in milliseconds
+    constexpr int fiveMins = 1000*60*5; // Five minutes in milliseconds
 
-    // Turn camera and fan off ten mins after launch
-    if(millis() > (thirtyMins + logStart))
+    // Turn camera and fan off five mins after launch
+    if(millis() > (fiveMins  + logStart))
     {
         cam.setOff();
         fan.setOff();
