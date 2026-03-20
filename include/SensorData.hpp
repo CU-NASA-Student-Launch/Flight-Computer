@@ -5,7 +5,7 @@
 
 struct SensorData
 {
-    uint32_t t_ms;
+    unsigned long t_ms;
     float accelX;
     float accelY;
     float accelZ;

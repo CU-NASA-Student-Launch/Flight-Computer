@@ -14,7 +14,7 @@ class MpuControl
         // Member functions
         void connectMpu(void);
         void pollMpu(SensorData &record);
-        bool checkUpsideDown(void);
+        bool checkActivationAngle(void);
         bool isUpright(void);
         bool checkMotion(void);
 

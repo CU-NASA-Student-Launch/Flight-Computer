@@ -15,7 +15,7 @@ SpeakerControl speaker;
 SensorData currData;
 FsWriter writer;
 
-int logStart = 0;
+unsigned long logStart = 0;
 
 void setup() {
     Serial.begin(115200);
@@ -30,9 +30,9 @@ void setup() {
 
     writer.initiate(); // loops forever if file is already there
 
-    // Wait for rocket to be turned upside down for five seconds
+    // Wait for rocket to be turned slightly past horizontal
     // before starting logging.
-    while(!mpuSensor.checkUpsideDown())
+    while(!mpuSensor.checkActivationAngle())
     {
         speaker.beep(1);
         delay(1000);
@@ -60,12 +60,12 @@ void setup() {
 void loop() {
     bmpSensor.pollBmp(currData);
     mpuSensor.pollMpu(currData);
-    currData.t_ms = millis();
+    currData.t_ms = millis() - logStart;
     writer.store(currData);
 
-    constexpr int tenMinMilli = 1000*60*60; // Thirty minutes in milliseconds
+    constexpr unsigned long duration = 1000*60*60; // 1 hour in milliseconds
 
-    if(BOOTSEL || (millis() > (tenMinMilli + logStart)))
+    if(BOOTSEL || (millis() > (duration + logStart)))
     {
         speaker.silence();
         writer.streamFSData();

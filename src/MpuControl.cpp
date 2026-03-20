@@ -18,7 +18,7 @@ void MpuControl::connectMpu(void)
   }
 }
 
-bool MpuControl::checkUpsideDown(void)
+bool MpuControl::checkActivationAngle(void)
 {
   sensors_event_t a, g;
   mpu.getEvent(&a, &g, nullptr);
