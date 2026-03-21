@@ -107,7 +107,7 @@ void loop() {
     // Grab data from each of the sensors and store in the currData object.
     bmpSensor.pollBmp(currData);
     mpuSensor.pollMpu(currData);
-    currData.t_ms = millis() - logStart; // Moment in time associated with the data samples
+    currData.t_ms = millis(); // Moment in time associated with the data samples
     // Store data in flash memory. This only happens if the buffer is full.
     // This check is done in the store method.
     writer.store(currData);
