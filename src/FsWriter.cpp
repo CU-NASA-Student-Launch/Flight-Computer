@@ -96,7 +96,7 @@ void FsWriter::streamFSData() {
 
             Serial.println("BEGIN_FILE");
 
-            Serial.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m)");
+            Serial.println("msTime,accelX(m/s^2),accelY(m/s^2),accelZ(m/s^2),gyroX(rad/sec),gyroY(rad/sec),gyroZ(rad/sec),pressure (Pa),altitude (m)");
 
             SensorData record;
 

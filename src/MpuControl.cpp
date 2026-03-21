@@ -14,7 +14,7 @@ void MpuControl::connectMpu(void)
   }
   else
   {
-    mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+    mpu.setAccelerometerRange(MPU6050_RANGE_16_G);
     mpu.setGyroRange(MPU6050_RANGE_1000_DEG);
   }
 }

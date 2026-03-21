@@ -16,8 +16,8 @@ MpuControl mpuSensor;
 SpeakerControl speaker;
 SensorData currData;
 FsWriter writer;
-FanControl fan;
-CamControl cam;
+// FanControl fan;
+// CamControl cam;
 ServoControl servo;
 
 unsigned long logStart = 0;
@@ -68,10 +68,10 @@ void setup() {
     }
 
     // Turn fan on before camera to prevent overheating.
-    fan.setOn();
+    // fan.setOn();
 
     // Turn the camera on, then give a few minutes to make sure camera is connected.
-    cam.setOn();
+    // cam.setOn();
 
     // Wait for 2 mins after giving camera power
     for(int i = 0; i < 600; i++)
@@ -96,7 +96,7 @@ void setup() {
     // Millis gives us the time from power on of the board in milliseconds.
     logStart = millis();
     // Turn the fan on at launch to prevent interferance in flight.
-    fan.setOff();
+    // fan.setOff();
 }
 
 /*
@@ -107,7 +107,7 @@ void loop() {
     // Grab data from each of the sensors and store in the currData object.
     bmpSensor.pollBmp(currData);
     mpuSensor.pollMpu(currData);
-    currData.t_ms = millis(); // Moment in time associated with the data samples
+    currData.t_ms = millis() - logStart; // Moment in time associated with the data samples
     // Store data in flash memory. This only happens if the buffer is full.
     // This check is done in the store method.
     writer.store(currData);
@@ -120,7 +120,7 @@ void loop() {
     if(BOOTSEL || (millis() > (fiveMins + logStart)))
     {
         speaker.silence(); // When speaker is quiet, you know logging has stopped.
-        fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
+        // fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
         writer.flush();
         writer.closeFile();
         writer.streamFSData();
@@ -128,7 +128,7 @@ void loop() {
 
     if(millis() > (fifteenSecs + logStart))
     {
-        fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
+        // fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
     }
 
     // Manual delay to slow down rate of logging. Makes goofy jittery sound because 
@@ -143,7 +143,7 @@ void loop1()
     // Turn camera and fan off five mins after launch
     if(millis() > (fiveMins  + logStart))
     {
-        cam.setOff();
-        fan.setOff();
+        // cam.setOff();
+        // fan.setOff();
     }
 }
