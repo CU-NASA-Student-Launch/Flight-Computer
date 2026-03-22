@@ -41,14 +41,6 @@ void setup() {
     // If file is there, begin loop listening for connection over usb.
     writer.checkForFile();
 
-    // Wait for rocket to be held at ~45° nose down for five seconds
-    while(!mpuSensor.checkTilt())
-    {
-        speaker.beep(1);
-        delay(1000);
-        speaker.beep(1);
-    }
-
     // Initializes filesystem and creates file after check for preexisting file.
     writer.initiate();
     
