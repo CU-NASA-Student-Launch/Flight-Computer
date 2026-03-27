@@ -35,3 +35,8 @@ void BmpControl::pollBmp(SensorData &record) {
   record.pressure = bmp.readPressure(); // Pa
   record.altitude = bmp.readAltitude(1013.25); // m
 }
+
+float BmpControl::getHeight(void)
+{
+  return bmp.readAltitude(1013.25); // m
+}

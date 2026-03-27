@@ -21,6 +21,9 @@ CamControl cam;
 ServoControl servo;
 
 unsigned long logStart = 0;
+unsigned long railClearTime = 0;
+float initialAltitude = 0;
+bool railCleared = false;
 
 void setup() {
     // Set up usb communication
@@ -95,6 +98,8 @@ void setup() {
     // Make of note of the moment of launch.
     // Millis gives us the time from power on of the board in milliseconds.
     logStart = millis();
+    // Initial height used for servo control
+    initialAltitude = bmpSensor.getHeight();
     // Turn the fan on at launch to prevent interferance in flight.
     fan.setOff();
 }
@@ -145,5 +150,16 @@ void loop1()
     {
         cam.setOff();
         fan.setOff();
+    }
+
+    if(!railCleared && ((currData.altitude - initialAltitude) > 1))
+    {
+        railCleared = true;
+        servo.adjustAngle(25);
+        railClearTime = millis();
+    }
+    else if(railCleared && (millis() > (2000 + railClearTime)))
+    {
+        servo.adjustAngle(-25);
     }
 }

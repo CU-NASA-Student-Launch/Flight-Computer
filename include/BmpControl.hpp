@@ -15,6 +15,7 @@ public:
     BmpControl();
     void connectBmp(void);
     void pollBmp(SensorData &record);
+    float getHeight(void);
 
 private:
     Adafruit_BMP280 bmp; // use I2C interface
