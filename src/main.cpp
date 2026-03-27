@@ -152,7 +152,7 @@ void loop1()
         fan.setOff();
     }
 
-    if(!railCleared && ((currData.altitude - initialAltitude) > 1))
+    if(!railCleared && ((currData.altitude - initialAltitude) > 3.5))
     {
         railCleared = true;
         servo.adjustAngle(25);
