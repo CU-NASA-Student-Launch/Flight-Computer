@@ -20,9 +20,9 @@ FanControl fan;
 CamControl cam;
 ServoControl servo;
 
-unsigned long logStart = 0;
+unsigned long logStart = 40000000; // Not a permenant solution
 unsigned long railClearTime = 0;
-float initialAltitude = 0;
+float initialAltitude = 100000;
 bool railCleared = false;
 
 void setup() {
@@ -72,7 +72,6 @@ void setup() {
 
     // Turn fan on before camera to prevent overheating.
     fan.setOn();
-
     // Turn the camera on, then give a few minutes to make sure camera is connected.
     cam.setOn();
 
@@ -155,11 +154,11 @@ void loop1()
     if(!railCleared && ((currData.altitude - initialAltitude) > 3.5))
     {
         railCleared = true;
-        servo.adjustAngle(25);
+        servo.adjustAngle(45);
         railClearTime = millis();
     }
     else if(railCleared && (millis() > (2000 + railClearTime)))
     {
-        servo.adjustAngle(-25);
+        servo.adjustAngle(-45);
     }
 }
