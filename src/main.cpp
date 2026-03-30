@@ -43,17 +43,6 @@ void setup() {
     // File will NEVER be overwritten by design.
     // If file is there, begin loop listening for connection over usb.
     writer.checkForFile();
-
-    // Wait for rocket to be held at ~45° nose down for five seconds
-    while(!mpuSensor.checkTilt())
-    {
-        speaker.beep(1);
-        delay(1000);
-        speaker.beep(1);
-    }
-
-    // Initializes filesystem and creates file after check for preexisting file.
-    writer.initiate();
     
     // Wait for 3 mins after tilt event to give time to place rocket on rail.
     for(int i = 0; i < 900; i++)
@@ -70,25 +59,14 @@ void setup() {
         }
     }
 
+    // Initializes filesystem and creates file after check for preexisting file.
+    writer.initiate();
+
     // Turn fan on before camera to prevent overheating.
     fan.setOn();
     // Turn the camera on, then give a few minutes to make sure camera is connected.
     cam.setOn();
 
-    // Wait for 2 mins after giving camera power
-    for(int i = 0; i < 600; i++)
-    {
-        // Beep fervantly
-        speaker.beep(0.1);
-        delay(100);
-
-        // Press little button on board to skip wait for testing.
-        if(BOOTSEL)
-        {
-            break;
-        }
-    }
-    
     // Board in armed state. Speaker is on all the time and we are waiting
     // for a launch event.
     speaker.blare();
@@ -103,10 +81,6 @@ void setup() {
     fan.setOff();
 }
 
-/*
-This first core will poll data from the sensors.
-
-*/
 void loop() {
     // Grab data from each of the sensors and store in the currData object.
     bmpSensor.pollBmp(currData);
@@ -114,6 +88,18 @@ void loop() {
     currData.t_ms = millis(); // Moment in time associated with the data samples
     // Store data in flash memory. This only happens if the buffer is full.
     // This check is done in the store method.
+
+    if(!railCleared && ((currData.altitude - initialAltitude) > 3.5))
+    {
+        railCleared = true;
+        servo.adjustAngle(45);
+        railClearTime = millis();
+    }
+    else if(railCleared && (millis() > (2000 + railClearTime)))
+    {
+        servo.adjustAngle(-45);
+    }
+
     writer.store(currData);
 
     constexpr int fifteenSecs = 1000*15; // Fifteen seconds in milliseconds
@@ -124,7 +110,8 @@ void loop() {
     if(BOOTSEL || (millis() > (fiveMins + logStart)))
     {
         speaker.silence(); // When speaker is quiet, you know logging has stopped.
-        fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
+        cam.setOff();
+        fan.setOff(); // Fan must remain on while camera is on always to prevent damage.
         writer.flush();
         writer.closeFile();
         writer.streamFSData();
@@ -138,27 +125,4 @@ void loop() {
     // Manual delay to slow down rate of logging. Makes goofy jittery sound because 
     // beep is for duration of the delay.
     speaker.beep(0.002);
-}
-
-void loop1()
-{
-    constexpr int fiveMins = 1000*60*5; // Five minutes in milliseconds
-
-    // Turn camera and fan off five mins after launch
-    if(millis() > (fiveMins  + logStart))
-    {
-        cam.setOff();
-        fan.setOff();
-    }
-
-    if(!railCleared && ((currData.altitude - initialAltitude) > 3.5))
-    {
-        railCleared = true;
-        servo.adjustAngle(45);
-        railClearTime = millis();
-    }
-    else if(railCleared && (millis() > (2000 + railClearTime)))
-    {
-        servo.adjustAngle(-45);
-    }
 }
