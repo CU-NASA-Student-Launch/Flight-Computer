@@ -45,7 +45,7 @@ void setup() {
     writer.initiate();
     
     // Wait for 3 mins after tilt event to give time to place rocket on rail.
-    for(int i = 0; i < 900; i++)
+    for(int i = 0; i < 1; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
@@ -66,7 +66,7 @@ void setup() {
     // cam.setOn();
 
     // Wait for 2 mins after giving camera power
-    for(int i = 0; i < 600; i++)
+    for(int i = 0; i < 1; i++)
     {
         // Beep fervantly
         speaker.beep(0.1);
