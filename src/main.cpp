@@ -113,16 +113,16 @@ void loop()
   constexpr int fiveMins = 1000 * 60 * 5; // Five mins in milliseconds
 
   // Collect data until fifteen seconds have passed, or until the boot-select
-  // button has been pressed (boot-select option is for debug purposes)
+  // button has been pressed. Boot-select option is for debug purposes.
   if (BOOTSEL || (millis() > (fiveMins + logStart)))
   {
     speaker.silence(); // When speaker is quiet, you know logging has stopped.
     cam.setOff();
-    fan.setOff();         // Fan must remain on while camera is on ALWAYS to prevent damage.
+    fan.setOff();         // Fan must remain on while camera is on to prevent damage.
     servo.adjustAngle(0); // Reset servo to neutral position.
     writer.flush();       // Clear out what is left in buffer.
     writer.closeFile();
-    writer.streamFSData(); // Wait for communication from usb (this call is never exited)
+    writer.streamFSData(); // Wait for communication from usb FOREVER.
   }
 
   // Fan is only turned back on after time to reach apogee has been exceeded.
