@@ -22,11 +22,10 @@ CamControl cam;
 ServoControl servo;
 LEDControl led;
 
-unsigned long logStart = 400000;
+unsigned long logStart = 40000000;
 unsigned long railClearTime = 0;
 float initialAltitude = 100000;
 bool railCleared = false;
-bool secondRotationDone = false;
 
 void setup()
 {
@@ -48,10 +47,15 @@ void setup()
   // If file is there, begin loop listening for connection over usb.
   writer.checkForFile();
 
-  // Wait for 3 mins
-  for (int i = 0; i < 900; i++)
+  // Turn fan and camera on before countdown to power camera for pulling
+  // footage between launches.
+  fan.setOn();
+  cam.setOn();
+
+  // Wait for 5 mins
+  for (int i = 0; i < 1500; i++)
   {
-    // Beep fervantly
+    // This will cause a fervant sounding series of beeps.
     speaker.beep(0.1);
     delay(100);
 
@@ -66,22 +70,19 @@ void setup()
   // Initializes filesystem and creates file after check for preexisting file.
   writer.initiate();
 
-  // Turn fan on before camera to prevent overheating.
-  fan.setOn();
-  cam.setOn();
-
-  // Board in armed state. Speaker blares while waiting for launch event.
+  // Board in armed state. Speaker is on all the time and we are waiting
+  // for a launch event.
   speaker.blare();
   while (!mpuSensor.checkMotion())
   {
+    // Busy wait until an upward acceleration (more negative) is detected.
   }
 
-  // Make of note of the moment of launch.
-  // Millis gives us the time from power on of the board in milliseconds.
+  // Make note of number of milliseconds from board power-on launch occurs at.
   logStart = millis();
-  // Initial height used for servo control
+  // Note pre-launch altitude used for servo control
   initialAltitude = bmpSensor.getHeight();
-  // Turn the fan on at launch to prevent interferance in flight.
+  // Turn the fan off at launch to prevent interference during ascent.
   fan.setOff();
 }
 
@@ -96,43 +97,41 @@ void loop()
   {
     railCleared = true;
     led.leftLedOn();
-    servo.adjustAngle(45);
+    servo.adjustAngle(10);
     railClearTime = millis();
   }
-  else if (railCleared && !secondRotationDone && (millis() > (2000 + railClearTime)))
+  else if (railCleared && (millis() > (1000 + railClearTime)))
   {
-    secondRotationDone = true;
     led.rightLedOn();
-    servo.adjustAngle(-45);
+    servo.adjustAngle(-20);
   }
 
-  // Store data to flash
+  // Store data in flash memory. This only happens when the buffer is full.
   writer.store(currData);
 
   constexpr int fifteenSecs = 1000 * 15;  // Fifteen seconds in milliseconds
   constexpr int fiveMins = 1000 * 60 * 5; // Five mins in milliseconds
 
-  // Got data for 15 secs after launch event. For logging purposes, if little
-  // button on the board is pressed, stop logging early.
+  // Collect data until fifteen seconds have passed, or until the boot-select
+  // button has been pressed (boot-select option is for debug purposes)
   if (BOOTSEL || (millis() > (fiveMins + logStart)))
   {
     speaker.silence(); // When speaker is quiet, you know logging has stopped.
     cam.setOff();
-    fan.setOff(); // Fan must remain on while camera is on always to prevent damage.
-    servo.adjustAngle(0);
-    writer.flush();
+    fan.setOff();         // Fan must remain on while camera is on ALWAYS to prevent damage.
+    servo.adjustAngle(0); // Reset servo to neutral position.
+    writer.flush();       // Clear out what is left in buffer.
     writer.closeFile();
-    writer.streamFSData();
+    writer.streamFSData(); // Wait for communication from usb (this call is never exited)
   }
 
+  // Fan is only turned back on after time to reach apogee has been exceeded.
   if (millis() > (fifteenSecs + logStart))
   {
     fan.setOn(); // Fan must remain on while camera is on always to prevent damage.
-    led.ledsOff();
-    servo.adjustAngle(0);
   }
 
   // Manual delay to slow down rate of logging. Makes goofy jittery sound because
-  // beep is for duration of the delay.
+  // beep is for duration of the delay. This also acts as an audible indicator of state.
   speaker.beep(0.002);
 }

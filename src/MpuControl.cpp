@@ -5,17 +5,17 @@ MpuControl::MpuControl()
   // Do nothing
 }
 
-void MpuControl::connectMpu(void) 
+void MpuControl::connectMpu(void)
 {
   // Find MPU6050
-  if (!mpu.begin()) 
+  if (!mpu.begin())
   {
     Serial.println("Failed to find MPU6050 chip");
   }
   else
   {
     mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-    mpu.setGyroRange(MPU6050_RANGE_1000_DEG);
+    mpu.setGyroRange(MPU6050_RANGE_2000_DEG);
   }
 }
 
@@ -25,12 +25,12 @@ bool MpuControl::checkTilt(void)
   mpu.getEvent(&a, &g, nullptr);
 
   bool tilted = true;
-  
+
   // Check once a second for five seconds
   // If ever right-side up, we haven't been upside-down for long enough
-  for(int i = 0; i < 100; i++)
+  for (int i = 0; i < 100; i++)
   {
-    if(a.acceleration.x < 2 || a.acceleration.x > 8)
+    if (a.acceleration.x < 2 || a.acceleration.x > 8)
     {
       tilted = false;
     }
@@ -47,7 +47,7 @@ bool MpuControl::checkMotion(void)
   return a.acceleration.x < -10;
 }
 
-void MpuControl::pollMpu(SensorData &record) 
+void MpuControl::pollMpu(SensorData &record)
 {
   // Get new sensor events with the readings
   sensors_event_t a, g;
