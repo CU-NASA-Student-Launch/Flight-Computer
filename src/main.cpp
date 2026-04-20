@@ -120,7 +120,8 @@ void loop()
     cam.setOff();
     fan.setOff();         // Fan must remain on while camera is on to prevent damage.
     servo.adjustAngle(0); // Reset servo to neutral position.
-    writer.flush();       // Clear out what is left in buffer.
+    led.ledsOff();
+    writer.flush(); // Clear out what is left in buffer.
     writer.closeFile();
     writer.streamFSData(); // Wait for communication from usb FOREVER.
   }
