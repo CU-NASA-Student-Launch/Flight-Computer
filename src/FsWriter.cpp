@@ -1,20 +1,19 @@
 #include <FsWriter.hpp>
 
-FsWriter::FsWriter() {
-    
+FsWriter::FsWriter()
+{
 }
 
-FsWriter::~FsWriter() 
+FsWriter::~FsWriter()
 {
-
 }
 
 void FsWriter::checkForFile()
 {
     LittleFS.begin();
 
-    // Check if file exists. If so, enter loop that talks to python script. 
-    if (LittleFS.exists("/flight.bin")) 
+    // Check if file exists. If so, enter loop that talks to python script.
+    if (LittleFS.exists("/flight.bin"))
     {
         this->streamFSData();
     }
@@ -36,16 +35,17 @@ void FsWriter::initiate()
 
 void FsWriter::flush()
 {
-    if (!logFile) return;
+    if (!logFile)
+        return;
 
     int count = currBuffLoc;
-    if (count == 0) return;
+    if (count == 0)
+        return;
 
     // Write raw SensorData structs directly
     logFile.write(
-        (uint8_t*)&sensorDataBuff[0],
-        count * sizeof(SensorData)
-    );
+        (uint8_t *)&sensorDataBuff[0],
+        count * sizeof(SensorData));
 
     currBuffLoc = 0;
 }
@@ -60,20 +60,23 @@ void FsWriter::store(SensorData &record)
     // Check if the buffer is full before writing
     // The buffer is used to write data in large chunks. This saves time as writing to
     // flash is a very slow operation and flash wears out over time.
-    if(currBuffLoc == sensorDataBuff.size()-1)
+    if (currBuffLoc == sensorDataBuff.size() - 1)
     {
         this->flush();
         currBuffLoc = 0;
     }
-    
+
     sensorDataBuff[currBuffLoc] = record;
     currBuffLoc++;
 }
 
 // This function talks to a python script that coordinates the transmission of the data.
-void FsWriter::streamFSData() {
-  while(1) {
-        while (!Serial) delay(10);
+void FsWriter::streamFSData()
+{
+    while (1)
+    {
+        while (!Serial)
+            delay(10);
 
         String word = Serial.readStringUntil('\n');
 
@@ -100,9 +103,9 @@ void FsWriter::streamFSData() {
 
             SensorData record;
 
-            while (f.read((uint8_t*)&record, sizeof(SensorData)) == sizeof(SensorData))
+            while (f.read((uint8_t *)&record, sizeof(SensorData)) == sizeof(SensorData))
             {
-                Serial.printf("%lu,%f,%f,%f,%f,%f,%f,%f,%f\n",
+                Serial.printf("%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
                               record.t_ms,
                               record.accelX,
                               record.accelY,
@@ -111,14 +114,15 @@ void FsWriter::streamFSData() {
                               record.gyroY,
                               record.gyroZ,
                               record.pressure,
-                              record.altitude);
+                              record.altitude,
+                              record.angle);
             }
 
             f.close();
 
             Serial.println("END_FILE");
 
-            Serial.setTimeout(300000);  // 5 minutes
+            Serial.setTimeout(300000); // 5 minutes
             String response = Serial.readStringUntil('\n');
 
             if (response == "ACK")
