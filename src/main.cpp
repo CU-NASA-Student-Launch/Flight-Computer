@@ -3,6 +3,7 @@
 #include <SensorData.hpp>
 #include <BmpControl.hpp>
 #include <MpuControl.hpp>
+#include <GPSControl.hpp>
 #include <SpeakerControl.hpp>
 #include <FanControl.hpp>
 #include <CamControl.hpp>
@@ -13,6 +14,7 @@
 
 BmpControl bmpSensor;
 MpuControl mpuSensor;
+GPSControl gpsSensor;
 SpeakerControl speaker;
 SensorData currData;
 FsWriter writer;
@@ -33,6 +35,7 @@ void setup() {
     // Establish connection with sensors
     bmpSensor.connectBmp();
     mpuSensor.connectMpu();
+    gpsSensor.connectGPS();
     servo.connectServo();
 
     // Starts infinite loop of silence if file is already there.
@@ -104,6 +107,7 @@ void loop() {
     // Grab data from each of the sensors and store in the currData object.
     bmpSensor.pollBmp(currData);
     mpuSensor.pollMpu(currData);
+    gpsSensor.pollGPS(currData);
     currData.t_ms = millis(); // Moment in time associated with the data samples
     // Store data in flash memory. This only happens if the buffer is full.
     // This check is done in the store method.

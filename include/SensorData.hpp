@@ -14,6 +14,9 @@ struct SensorData
     float gyroZ;
     float pressure;
     float altitude;
+    float latitude;
+    float longitude;
+    float gpsAltitude;
 };
 
 #endif // SENSOR_DATA_HPP
