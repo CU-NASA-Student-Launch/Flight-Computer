@@ -10,6 +10,7 @@ public:
     void leftLedOn(void);
     void rightLedOn(void);
     void ledsOff(void);
+    void ledsOn(void);
 
 private:
     // LED pins

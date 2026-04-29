@@ -18,6 +18,12 @@ void LEDControl::rightLedOn(void)
     analogWrite(ledPinTwo, 0);
 }
 
+void LEDControl::ledsOn(void)
+{
+    analogWrite(ledPinOne, 128);
+    analogWrite(ledPinTwo, 128);
+}
+
 void LEDControl::ledsOff(void)
 {
     analogWrite(ledPinOne, 0);

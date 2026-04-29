@@ -69,6 +69,7 @@ void setup()
     }
   }
 
+  led.ledsOn();
   // Initializes filesystem and creates file after check for preexisting file.
   writer.initiate();
 
