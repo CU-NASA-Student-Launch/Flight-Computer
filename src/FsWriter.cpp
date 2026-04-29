@@ -105,7 +105,7 @@ void FsWriter::streamFSData()
 
             while (f.read((uint8_t *)&record, sizeof(SensorData)) == sizeof(SensorData))
             {
-                Serial.printf("%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
+                Serial.printf("%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
                               record.t_ms,
                               record.accelX,
                               record.accelY,
@@ -115,7 +115,10 @@ void FsWriter::streamFSData()
                               record.gyroZ,
                               record.pressure,
                               record.altitude,
-                              record.angle);
+                              record.angle,
+                              record.gps_alt,
+                              record.gps_lat,
+                              record.gps_lon);
             }
 
             f.close();

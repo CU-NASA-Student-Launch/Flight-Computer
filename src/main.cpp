@@ -55,7 +55,7 @@ void setup()
   cam.setOn();
 
   // Wait for 5 mins
-  for (int i = 0; i < 1500; i++)
+  for (int i = 0; i < 900; i++)
   {
     // This will cause a fervant sounding series of beeps.
     speaker.beep(0.1);
@@ -139,8 +139,23 @@ void loop()
     currData.currentPosition = currentPosition;
     currData.angle = -angle;
 
+    float signedAngle = -angle * (rollRate / abs(rollRate));
+
+    if (signedAngle > 0)
+    {
+      led.rightLedOn();
+    }
+    else if (signedAngle < 0)
+    {
+      led.leftLedOn();
+    }
+    else
+    {
+      led.ledsOn();
+    }
+
     // Convert from radians to degrees for control signal.
-    servo.adjustAngle(-angle * (rollRate / abs(rollRate)));
+    servo.adjustAngle(signedAngle);
   }
 
   // Store data in flash memory. This only happens when the buffer is full.
