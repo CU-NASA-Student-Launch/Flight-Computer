@@ -70,7 +70,7 @@ void setup()
   }
 
   led.ledsOn();
-  // Initializes filesystem and creates file after check for preexisting file.
+  // Creates file
   writer.initiate();
 
   // Board in armed state. Speaker is on all the time and we are waiting
