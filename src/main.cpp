@@ -176,8 +176,7 @@ void loop()
     cam.setOff();
     servo.adjustAngle(0); // Reset servo to neutral position.
     led.ledsOff();
-    writer.flush(); // Clear out what is left in buffer.
-    writer.closeFile();
+    writer.flush();        // Clear out what is left in buffer.
     writer.streamFSData(); // Wait for communication from usb FOREVER.
   }
 

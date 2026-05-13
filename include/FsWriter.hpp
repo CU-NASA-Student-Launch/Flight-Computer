@@ -7,28 +7,27 @@
 #ifndef FS_WRITER_HPP
 #define FS_WRITER_HPP
 
-class FsWriter {
-    public:
-        FsWriter();
+class FsWriter
+{
+public:
+    FsWriter();
 
-        ~FsWriter();
+    ~FsWriter();
 
-        void initiate();
+    void initiate();
 
-        void flush();
+    void flush();
 
-        void store(SensorData &record);
+    void store(SensorData &record);
 
-        void streamFSData();
+    void streamFSData();
 
-        void checkForFile();
+    void checkForFile();
 
-        void closeFile();
-        
-    private:
-        std::array<SensorData, 5000> sensorDataBuff;
-        int currBuffLoc = 0;
-        File logFile;
+private:
+    std::array<SensorData, 5000> sensorDataBuff;
+    int currBuffLoc = 0;
+    File logFile;
 };
 
 #endif // FS_WRITER

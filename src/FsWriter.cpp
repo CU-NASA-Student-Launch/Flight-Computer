@@ -46,11 +46,6 @@ void FsWriter::flush()
     logFile.close(); // Flushes LFS buffer
 }
 
-void FsWriter::closeFile()
-{
-    logFile.close();
-}
-
 void FsWriter::store(SensorData &record)
 {
     // Check if the buffer is full before writing
