@@ -162,7 +162,7 @@ void loop()
     servo.adjustAngle(signedAngle);
   }
 
-  // Store data in flash memory. This only happens when the buffer is full.
+  // Stores data in temporary buffer that is flushed when buffer is filled or when writer.flush() is called
   writer.store(currData);
 
   constexpr int fifteenSecs = 1000 * 15;  // Fifteen seconds in milliseconds
