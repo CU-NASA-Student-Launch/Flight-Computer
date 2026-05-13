@@ -83,6 +83,10 @@ void setup()
 
   // Make note of number of milliseconds from board power-on launch occurs at.
   logStart = millis();
+
+  // Initializing previousTime
+  previousTime = logStart;
+
   // Note pre-launch altitude used for servo control
   initialAltitude = bmpSensor.getHeight();
 }
