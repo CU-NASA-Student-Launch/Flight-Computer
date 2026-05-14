@@ -10,6 +10,9 @@ public:
     void beep(double seconds);
     void blare(void);
     void silence(void);
+    void beginBeep(void);
+    void fileCheckBeep(void);
+    
 
 private:
     // Speaker pins

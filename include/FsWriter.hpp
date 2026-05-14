@@ -3,6 +3,7 @@
 #include "LittleFS.h"
 #include <atomic>
 #include <SensorData.hpp>
+#include <SpeakerControl.hpp>
 
 #ifndef FS_WRITER_HPP
 #define FS_WRITER_HPP
@@ -21,7 +22,7 @@ class FsWriter {
 
         void streamFSData();
 
-        void checkForFile();
+        void checkForFile(SpeakerControl &speaker);
 
         void closeFile();
         

@@ -5,6 +5,7 @@
 #include <MpuControl.hpp>
 #include <SpeakerControl.hpp>
 #include <CamControl.hpp>
+#include <FanControl.hpp>
 #include <ServoControl.hpp>
 #include <LEDControl.hpp>
 #include <GPSControl.hpp>
@@ -15,12 +16,14 @@
 BmpControl bmpSensor;
 MpuControl mpuSensor;
 SpeakerControl speaker;
+
 SensorData currData;
 FsWriter writer;
 CamControl cam;
+FanControl fan;
 ServoControl servo;
 LEDControl led;
-GPSControl gps;
+//GPSControl gps;
 
 unsigned long logStart = 40000000;
 unsigned long railClearTime = 0;
@@ -28,6 +31,8 @@ float initialAltitude = 100000;
 bool railCleared = false;
 float previousRollRate = 0.0;
 float previousTime = 0.0;
+
+const char speakPin = 22;
 
 void setup()
 {
@@ -43,20 +48,28 @@ void setup()
   bmpSensor.connectBmp();
   mpuSensor.connectMpu();
   servo.connectServo();
-  gps.connectGPS();
+  //gps.connectGPS();
+
+  /////
+  fan.setOn();
+
+  speaker.beginBeep();
+  /////
 
   // Starts infinite loop of silence if file is already there.
   // File will NEVER be overwritten by design.
   // If file is there, begin loop listening for connection over usb.
-  writer.checkForFile();
+  writer.checkForFile(speaker);
 
   // Camera on before countdown to power camera for pulling
   // footage between launches.
   cam.setOn();
 
   // Wait for 5 mins
+  /*
   for (int i = 0; i < 900; i++)
   {
+    
     // This will cause a fervant sounding series of beeps.
     speaker.beep(0.1);
     delay(100);
@@ -68,6 +81,30 @@ void setup()
       break;
     }
   }
+*/
+
+unsigned long currentMillis = millis(); // Get the current time
+unsigned long previousMillis = millis();
+
+// Check if it's time to act
+// 10000 ms = 10 seconds
+while (currentMillis - previousMillis <= 10000) {
+
+  currentMillis = millis(); // Update current time
+
+  tone(speakPin, 1000, 500); // Play a tone for 500 milliseconds
+  delay(500); // Wait for the tone to finish
+
+  noTone(speakPin); // Stop the tone
+  delay(1500); // Wait before the next tone
+
+  if (BOOTSEL)
+  {
+    break;
+  }
+}
+
+
 
   led.ledsOn();
   // Initializes filesystem and creates file after check for preexisting file.
@@ -79,7 +116,9 @@ void setup()
   while (!mpuSensor.checkMotion())
   {
     // Busy wait until an upward acceleration (more negative) is detected.
+    speaker.blare();
   }
+  speaker.silence();
 
   // Make note of number of milliseconds from board power-on launch occurs at.
   logStart = millis();
@@ -92,7 +131,7 @@ void loop()
   // Grab data from each of the sensors and store in the currData object.
   bmpSensor.pollBmp(currData);
   mpuSensor.pollMpu(currData);
-  gps.pollGPS(currData);
+  //gps.pollGPS(currData);
   currData.t_ms = millis(); // Moment in time associated with the data samples
 
   float angle = 0;
@@ -101,7 +140,7 @@ void loop()
   previousRollRate = currData.gyroX;
   previousTime = currData.t_ms;
 
-  if (!railCleared && ((currData.altitude - initialAltitude) > 3.5))
+  if (!railCleared && ((currData.altitude - initialAltitude) > 0.5))
   {
     railCleared = true;
     led.leftLedOn();
@@ -113,6 +152,7 @@ void loop()
     led.rightLedOn();
     servo.adjustAngle(-20);
   }
+  /**/
   else if (railCleared && (millis() > (3500 + railClearTime)))
   {
     if (abs(rollRate) < 0.1)
@@ -136,11 +176,12 @@ void loop()
       angle = 35.0;
     }
 
-    currData.currentPosition = currentPosition;
+    //currData.currentPosition = currentPosition;
     currData.angle = -angle;
 
-    float signedAngle = -angle * (rollRate / abs(rollRate));
+    int signedAngle = -angle * (rollRate / abs(rollRate));
 
+    /*
     if (signedAngle > 0)
     {
       led.rightLedOn();
@@ -153,9 +194,12 @@ void loop()
     {
       led.ledsOn();
     }
+    */
+    //digitalWrite(ledPinTwo, HIGH);
 
     // Convert from radians to degrees for control signal.
     servo.adjustAngle(signedAngle);
+    
   }
 
   // Store data in flash memory. This only happens when the buffer is full.
@@ -163,6 +207,7 @@ void loop()
 
   constexpr int fifteenSecs = 1000 * 15;  // Fifteen seconds in milliseconds
   constexpr int fiveMins = 1000 * 60 * 5; // Five mins in milliseconds
+  constexpr int oneMins = 1000 * 60 * 1; 
 
   // Collect data until fifteen seconds have passed, or until the boot-select
   // button has been pressed. Boot-select option is for debug purposes.

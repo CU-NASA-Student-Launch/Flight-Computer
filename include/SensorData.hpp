@@ -14,11 +14,11 @@ struct __attribute__((packed)) SensorData
     float gyroZ;
     float pressure;
     float altitude;
-    float currentPosition;
+    //float currentPosition;
     float angle;
-    float gps_alt;
-    float gps_lat;
-    float gps_lon;
+    //float gps_alt;
+    //float gps_lat;
+    //float gps_lon;
 };
 
 #endif // SENSOR_DATA_HPP
