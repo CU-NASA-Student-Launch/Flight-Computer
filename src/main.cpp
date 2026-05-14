@@ -107,7 +107,7 @@ while (currentMillis - previousMillis <= 10000) {
 
 
   led.ledsOn();
-  // Initializes filesystem and creates file after check for preexisting file.
+  // Creates file
   writer.initiate();
 
   // Board in armed state. Speaker is on all the time and we are waiting
@@ -122,6 +122,10 @@ while (currentMillis - previousMillis <= 10000) {
 
   // Make note of number of milliseconds from board power-on launch occurs at.
   logStart = millis();
+
+  // Initializing previousTime
+  previousTime = logStart;
+
   // Note pre-launch altitude used for servo control
   initialAltitude = bmpSensor.getHeight();
 }
@@ -202,7 +206,7 @@ void loop()
     
   }
 
-  // Store data in flash memory. This only happens when the buffer is full.
+  // Stores data in temporary buffer that is flushed when buffer is filled or when writer.flush() is called
   writer.store(currData);
 
   constexpr int fifteenSecs = 1000 * 15;  // Fifteen seconds in milliseconds
@@ -217,8 +221,7 @@ void loop()
     cam.setOff();
     servo.adjustAngle(0); // Reset servo to neutral position.
     led.ledsOff();
-    writer.flush(); // Clear out what is left in buffer.
-    writer.closeFile();
+    writer.flush();        // Clear out what is left in buffer.
     writer.streamFSData(); // Wait for communication from usb FOREVER.
   }
 

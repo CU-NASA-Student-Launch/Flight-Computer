@@ -24,20 +24,14 @@ void FsWriter::checkForFile(SpeakerControl &speaker)
 
 void FsWriter::initiate()
 {
-    LittleFS.begin();
-
-    if (!LittleFS.exists("/flight.bin"))
-    {
-        logFile = LittleFS.open("/flight.bin", "w");
-    }
-    else
-    {
-        this->streamFSData();
-    }
+    logFile = LittleFS.open("/flight.bin", "w");
+    logFile.close();
 }
 
 void FsWriter::flush()
 {
+    logFile = LittleFS.open("/flight.bin", "a");
+
     if (!logFile)
         return;
 
@@ -51,11 +45,8 @@ void FsWriter::flush()
         count * sizeof(SensorData));
 
     currBuffLoc = 0;
-}
 
-void FsWriter::closeFile()
-{
-    logFile.close();
+    logFile.close(); // Flushes LFS buffer
 }
 
 void FsWriter::store(SensorData &record)
