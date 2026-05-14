@@ -8,11 +8,11 @@ FanControl::FanControl()
 
 void FanControl::setOn(void)
 {
-    analogWrite(fanPin, 128);
+    digitalWrite(fanPin, HIGH);
 }
 
 void FanControl::setOff(void)
 {
-    analogWrite(fanPin, 0);
+    digitalWrite(fanPin, LOW);
 }
 

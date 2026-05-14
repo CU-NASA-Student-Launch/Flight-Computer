@@ -8,11 +8,11 @@ CamControl::CamControl()
 
 void CamControl::setOn(void)
 {
-    analogWrite(camPin, 128);
+    digitalWrite(camPin, HIGH);
 }
 
 void CamControl::setOff(void)
 {
-    analogWrite(camPin, 0);
+    digitalWrite(camPin, LOW);
 }
 

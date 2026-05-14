@@ -3,6 +3,7 @@
 #include "LittleFS.h"
 #include <atomic>
 #include <SensorData.hpp>
+#include <SpeakerControl.hpp>
 
 #ifndef FS_WRITER_HPP
 #define FS_WRITER_HPP
@@ -22,7 +23,7 @@ public:
 
     void streamFSData();
 
-    void checkForFile();
+    void checkForFile(SpeakerControl &speaker);
 
 private:
     std::array<SensorData, 5000> sensorDataBuff;

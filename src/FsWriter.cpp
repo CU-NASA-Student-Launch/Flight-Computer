@@ -8,15 +8,18 @@ FsWriter::~FsWriter()
 {
 }
 
-void FsWriter::checkForFile()
+void FsWriter::checkForFile(SpeakerControl &speaker)
 {
     LittleFS.begin();
 
     // Check if file exists. If so, enter loop that talks to python script.
     if (LittleFS.exists("/flight.bin"))
     {
+        speaker.fileCheckBeep();
         this->streamFSData();
+        
     }
+    
 }
 
 void FsWriter::initiate()
@@ -90,13 +93,13 @@ void FsWriter::streamFSData()
 
             Serial.println("BEGIN_FILE");
 
-            Serial.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m)");
+            Serial.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m), angle (degrees)");
 
             SensorData record;
 
             while (f.read((uint8_t *)&record, sizeof(SensorData)) == sizeof(SensorData))
             {
-                Serial.printf("%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
+                Serial.printf("%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,\n",
                               record.t_ms,
                               record.accelX,
                               record.accelY,
@@ -106,10 +109,10 @@ void FsWriter::streamFSData()
                               record.gyroZ,
                               record.pressure,
                               record.altitude,
-                              record.angle,
-                              record.gps_alt,
-                              record.gps_lat,
-                              record.gps_lon);
+                              record.angle);
+                              //record.gps_alt,
+                              //record.gps_lat,
+                              //record.gps_lon);
             }
 
             f.close();
