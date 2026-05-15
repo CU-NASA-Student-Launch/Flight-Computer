@@ -27,10 +27,10 @@ LEDControl led;
 
 unsigned long logStart = 40000000;
 unsigned long railClearTime = 0;
-float initialAltitude = 100000;
+float initialAltitude = 0.0;
 bool railCleared = false;
 float previousRollRate = 0.0;
-float previousTime = 0.0;
+unsigned long previousTime = 0.0;
 
 const char speakPin = 22;
 
@@ -140,7 +140,7 @@ void loop()
 
   float angle = 0;
   float rollRate = currData.gyroX;
-  float currentPosition = (currData.gyroX + previousRollRate) * 0.5 * (currData.t_ms - previousTime) / 1000.0; // Simple trapezoidal integration to get position from rate.
+  //float currentPosition = (currData.gyroX + previousRollRate) * 0.5 * (currData.t_ms - previousTime) / 1000.0; // Simple trapezoidal integration to get position from rate.
   previousRollRate = currData.gyroX;
   previousTime = currData.t_ms;
 
@@ -183,7 +183,13 @@ void loop()
     //currData.currentPosition = currentPosition;
     currData.angle = -angle;
 
-    int signedAngle = -angle * (rollRate / abs(rollRate));
+    int signedAngle = 0;
+
+    if (abs(rollRate) > 0.0001) {
+
+      int signedAngle = -angle * (rollRate / abs(rollRate));
+    }
+    //int signedAngle = -angle * (rollRate / abs(rollRate));
 
     /*
     if (signedAngle > 0)
@@ -199,7 +205,6 @@ void loop()
       led.ledsOn();
     }
     */
-    //digitalWrite(ledPinTwo, HIGH);
 
     // Convert from radians to degrees for control signal.
     servo.adjustAngle(signedAngle);
