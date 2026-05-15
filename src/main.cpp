@@ -13,7 +13,7 @@
 #include "LittleFS.h"
 #include <Wire.h>
 
-// BmpControl bmpSensor;
+BmpControl bmpSensor;
 MpuControl mpuSensor;
 SpeakerControl speaker;
 
@@ -23,7 +23,7 @@ CamControl cam;
 FanControl fan;
 ServoControl servo;
 LEDControl led;
-// GPSControl gps;
+GPSControl gps;
 
 unsigned long logStart = 40000000;
 unsigned long railClearTime = 0;
@@ -35,6 +35,8 @@ unsigned long previousTime = 0;
 unsigned long lastCommandTime = millis();
 unsigned long lastPitchChange = millis();
 unsigned int pitch = 250;
+
+unsigned long lastBufferTime = millis();
 
 const char speakPin = 22;
 
@@ -49,10 +51,10 @@ void setup()
   Wire.setClock(400000); // I2C running at 400 kHz
 
   // Establish connection with sensors
-  // bmpSensor.connectBmp();
+  bmpSensor.connectBmp();
   mpuSensor.connectMpu();
   servo.connectServo();
-  // gps.connectGPS();
+  gps.connectGPS();
 
   /////
   fan.setOn();
@@ -130,15 +132,15 @@ void setup()
   previousTime = logStart;
 
   // Note pre-launch altitude used for servo control
-  // initialAltitude = bmpSensor.getHeight();
+  initialAltitude = bmpSensor.getHeight();
 }
 
 void loop()
 {
   // Grab data from each of the sensors and store in the currData object.
-  // bmpSensor.pollBmp(currData);
+  bmpSensor.pollBmp(currData);
   mpuSensor.pollMpu(currData);
-  // gps.pollGPS(currData);
+  gps.pollGPS(currData);
   currData.t_ms = millis(); // Moment in time associated with the data samples
 
   float angle = 0;
@@ -194,7 +196,7 @@ void loop()
     }
     // int signedAngle = -angle * (rollRate / abs(rollRate));
 
-    /*
+    
     if (signedAngle > 0)
     {
       led.rightLedOn();
@@ -207,12 +209,12 @@ void loop()
     {
       led.ledsOn();
     }
-    */
+    
 
     currData.angle = signedAngle;
 
     // Convert from radians to degrees for control signal.
-    if (millis() > lastCommandTime + 50)
+    if (millis() > lastCommandTime + 500)
     {
       servo.adjustAngle(signedAngle);
       lastCommandTime = millis();
@@ -220,7 +222,16 @@ void loop()
   }
 
   // Stores data in temporary buffer that is flushed when buffer is filled or when writer.flush() is called
-  writer.store(currData);
+
+  if (millis() > lastBufferTime + 1)
+    {
+      //servo.adjustAngle(signedAngle);
+      writer.store(currData);
+      lastBufferTime = millis();
+
+    }
+
+  //writer.store(currData);
 
   constexpr int fifteenSecs = 1000 * 15;  // Fifteen seconds in milliseconds
   constexpr int fiveMins = 1000 * 60 * 5; // Five mins in milliseconds
