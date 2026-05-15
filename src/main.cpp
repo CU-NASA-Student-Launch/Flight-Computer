@@ -13,7 +13,7 @@
 #include "LittleFS.h"
 #include <Wire.h>
 
-BmpControl bmpSensor;
+// BmpControl bmpSensor;
 MpuControl mpuSensor;
 SpeakerControl speaker;
 
@@ -23,14 +23,18 @@ CamControl cam;
 FanControl fan;
 ServoControl servo;
 LEDControl led;
-//GPSControl gps;
+// GPSControl gps;
 
 unsigned long logStart = 40000000;
 unsigned long railClearTime = 0;
 float initialAltitude = 0.0;
 bool railCleared = false;
 float previousRollRate = 0.0;
-unsigned long previousTime = 0.0;
+unsigned long previousTime = 0;
+
+unsigned long lastCommandTime = millis();
+unsigned long lastPitchChange = millis();
+unsigned int pitch = 250;
 
 const char speakPin = 22;
 
@@ -45,10 +49,10 @@ void setup()
   Wire.setClock(400000); // I2C running at 400 kHz
 
   // Establish connection with sensors
-  bmpSensor.connectBmp();
+  // bmpSensor.connectBmp();
   mpuSensor.connectMpu();
   servo.connectServo();
-  //gps.connectGPS();
+  // gps.connectGPS();
 
   /////
   fan.setOn();
@@ -69,7 +73,7 @@ void setup()
   /*
   for (int i = 0; i < 900; i++)
   {
-    
+
     // This will cause a fervant sounding series of beeps.
     speaker.beep(0.1);
     delay(100);
@@ -83,28 +87,27 @@ void setup()
   }
 */
 
-unsigned long currentMillis = millis(); // Get the current time
-unsigned long previousMillis = millis();
+  unsigned long currentMillis = millis(); // Get the current time
+  unsigned long previousMillis = millis();
 
-// Check if it's time to act
-// 10000 ms = 10 seconds
-while (currentMillis - previousMillis <= 10000) {
-
-  currentMillis = millis(); // Update current time
-
-  tone(speakPin, 1000, 500); // Play a tone for 500 milliseconds
-  delay(500); // Wait for the tone to finish
-
-  noTone(speakPin); // Stop the tone
-  delay(1500); // Wait before the next tone
-
-  if (BOOTSEL)
+  // Check if it's time to act
+  // 10000 ms = 10 seconds
+  while (currentMillis - previousMillis <= 10000)
   {
-    break;
+
+    currentMillis = millis(); // Update current time
+
+    tone(speakPin, 1000, 500); // Play a tone for 500 milliseconds
+    delay(500);                // Wait for the tone to finish
+
+    noTone(speakPin); // Stop the tone
+    delay(1500);      // Wait before the next tone
+
+    if (BOOTSEL)
+    {
+      break;
+    }
   }
-}
-
-
 
   led.ledsOn();
   // Creates file
@@ -127,24 +130,24 @@ while (currentMillis - previousMillis <= 10000) {
   previousTime = logStart;
 
   // Note pre-launch altitude used for servo control
-  initialAltitude = bmpSensor.getHeight();
+  // initialAltitude = bmpSensor.getHeight();
 }
 
 void loop()
 {
   // Grab data from each of the sensors and store in the currData object.
-  bmpSensor.pollBmp(currData);
+  // bmpSensor.pollBmp(currData);
   mpuSensor.pollMpu(currData);
-  //gps.pollGPS(currData);
+  // gps.pollGPS(currData);
   currData.t_ms = millis(); // Moment in time associated with the data samples
 
   float angle = 0;
   float rollRate = currData.gyroX;
-  //float currentPosition = (currData.gyroX + previousRollRate) * 0.5 * (currData.t_ms - previousTime) / 1000.0; // Simple trapezoidal integration to get position from rate.
+  // float currentPosition = (currData.gyroX + previousRollRate) * 0.5 * (currData.t_ms - previousTime) / 1000.0; // Simple trapezoidal integration to get position from rate.
   previousRollRate = currData.gyroX;
   previousTime = currData.t_ms;
 
-  if (!railCleared && ((currData.altitude - initialAltitude) > 0.5))
+  if (!railCleared)
   {
     railCleared = true;
     led.leftLedOn();
@@ -180,16 +183,16 @@ void loop()
       angle = 35.0;
     }
 
-    //currData.currentPosition = currentPosition;
-    currData.angle = -angle;
+    // currData.currentPosition = currentPosition;
 
-    int signedAngle = 0;
+    float signedAngle = 0.0;
 
-    if (abs(rollRate) > 0.0001) {
+    if (abs(rollRate) > 0.0001)
+    {
 
-      int signedAngle = -angle * (rollRate / abs(rollRate));
+      signedAngle = -angle * (rollRate / abs(rollRate));
     }
-    //int signedAngle = -angle * (rollRate / abs(rollRate));
+    // int signedAngle = -angle * (rollRate / abs(rollRate));
 
     /*
     if (signedAngle > 0)
@@ -206,9 +209,14 @@ void loop()
     }
     */
 
+    currData.angle = signedAngle;
+
     // Convert from radians to degrees for control signal.
-    servo.adjustAngle(signedAngle);
-    
+    if (millis() > lastCommandTime + 50)
+    {
+      servo.adjustAngle(signedAngle);
+      lastCommandTime = millis();
+    }
   }
 
   // Stores data in temporary buffer that is flushed when buffer is filled or when writer.flush() is called
@@ -216,7 +224,7 @@ void loop()
 
   constexpr int fifteenSecs = 1000 * 15;  // Fifteen seconds in milliseconds
   constexpr int fiveMins = 1000 * 60 * 5; // Five mins in milliseconds
-  constexpr int oneMins = 1000 * 60 * 1; 
+  constexpr int oneMins = 1000 * 60 * 1;
 
   // Collect data until fifteen seconds have passed, or until the boot-select
   // button has been pressed. Boot-select option is for debug purposes.
@@ -232,5 +240,18 @@ void loop()
 
   // Manual delay to slow down rate of logging. Makes goofy jittery sound because
   // beep is for duration of the delay. This also acts as an audible indicator of state.
-  speaker.beep(0.002);
+
+  if (millis() > lastPitchChange + 1000)
+  {
+    speaker.beep(pitch); // passing in frequency
+    if (pitch == 250)
+    {
+      pitch = 500;
+    }
+    else if (pitch == 500)
+    {
+      pitch = 250;
+    }
+    lastPitchChange = millis();
+  }
 }

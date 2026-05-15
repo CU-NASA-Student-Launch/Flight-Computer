@@ -17,9 +17,7 @@ void FsWriter::checkForFile(SpeakerControl &speaker)
     {
         speaker.fileCheckBeep();
         this->streamFSData();
-        
     }
-    
 }
 
 void FsWriter::initiate()
@@ -56,6 +54,7 @@ void FsWriter::store(SensorData &record)
     // flash is a very slow operation and flash wears out over time.
     if (currBuffLoc == sensorDataBuff.size() - 1)
     {
+        tone(22, 1500);
         this->flush();
         currBuffLoc = 0;
     }
@@ -93,7 +92,7 @@ void FsWriter::streamFSData()
 
             Serial.println("BEGIN_FILE");
 
-            Serial.println("time(ms), accelX(m/s^2), accelY(m/s^2), accelZ(m/s^2), gyroX(rad/sec), gyroY(rad/sec), gyroZ(rad/sec), pressure (Pa), altitude (m), angle (degrees)");
+            Serial.println("msTime,accelX(m/s^2),accelY(m/s^2),accelZ(m/s^2),gyroX(rad/sec),gyroY(rad/sec),gyroZ(rad/sec),pressure (Pa),altitude (m),angle (degrees)");
 
             SensorData record;
 
@@ -110,9 +109,9 @@ void FsWriter::streamFSData()
                               record.pressure,
                               record.altitude,
                               record.angle);
-                              //record.gps_alt,
-                              //record.gps_lat,
-                              //record.gps_lon);
+                // record.gps_alt,
+                // record.gps_lat,
+                // record.gps_lon);
             }
 
             f.close();

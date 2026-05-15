@@ -9,7 +9,7 @@ class ServoControl
 public:
     ServoControl();
     void connectServo();
-    void adjustAngle(int degrees);
+    void adjustAngle(float degrees);
 
 private:
     Servo servo;

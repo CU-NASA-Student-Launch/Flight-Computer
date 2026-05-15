@@ -6,15 +6,9 @@ SpeakerControl::SpeakerControl()
     pinMode(speakPin, OUTPUT);
 }
 
-void SpeakerControl::beep(double seconds)
+void SpeakerControl::beep(unsigned int frequency)
 {
-    analogWrite(speakPin, 128);
-    
-    delay(seconds*1000);
-    analogWrite(speakPin, 0);
-
-    //tone(speakPin, 1000, );
-    //noTone(speakPin);
+    tone(speakPin, frequency);
 }
 
 /////////
