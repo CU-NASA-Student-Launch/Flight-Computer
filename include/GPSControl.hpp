@@ -11,6 +11,7 @@ public:
     GPSControl();
     void connectGPS(void);
     void pollGPS(SensorData &record);
+    bool hasFix();
 
 private:
     TinyGPSPlus gps;

@@ -16,9 +16,9 @@ struct __attribute__((packed)) SensorData
     float altitude;
     // float currentPosition;
     float angle;
-    // float gps_alt;
-    // float gps_lat;
-    // float gps_lon;
+    float gps_alt;
+    float gps_lat;
+    float gps_lon;
 };
 
 #endif // SENSOR_DATA_HPP

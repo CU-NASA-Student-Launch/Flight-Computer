@@ -93,8 +93,9 @@ void setup()
   unsigned long previousMillis = millis();
 
   // Check if it's time to act
-  // 10000 ms = 10 seconds
-  while (currentMillis - previousMillis <= 10000)
+  // 10000 ms = 10 seconds, 180000 ms = 3 minutes, 300000 ms = 5 minutes
+  // 180000 ms = 3 minutes
+  while (currentMillis - previousMillis <= 180000)
   {
 
     currentMillis = millis(); // Update current time
@@ -112,6 +113,16 @@ void setup()
   }
 
   led.ledsOn();
+
+  /*
+  led.leftLedOn();
+  if (gps.hasFix())
+  {
+    led.ledsOn();
+  }
+    */
+
+
   // Creates file
   writer.initiate();
 
@@ -149,7 +160,7 @@ void loop()
   previousRollRate = currData.gyroX;
   previousTime = currData.t_ms;
 
-  if (!railCleared)
+  if (!railCleared && ((currData.altitude - initialAltitude) > 0.5))
   {
     railCleared = true;
     led.leftLedOn();
@@ -214,19 +225,19 @@ void loop()
     currData.angle = signedAngle;
 
     // Convert from radians to degrees for control signal.
-    if (millis() > lastCommandTime + 500)
-    {
+    //if (millis() > lastCommandTime + 500)
+    //{
       servo.adjustAngle(signedAngle);
-      lastCommandTime = millis();
-    }
+    //  lastCommandTime = millis();
+    //}
   }
 
   // Stores data in temporary buffer that is flushed when buffer is filled or when writer.flush() is called
 
-  if (millis() > lastBufferTime + 1)
+  // The +1 gives us 14 seconds between writes to fill the buffer
+  if (millis() > lastBufferTime + 1)   // If we want to decrease data and increase time between writes, change the 1 to a higher number. This is in milliseconds.
     {
-      //servo.adjustAngle(signedAngle);
-      writer.store(currData);
+      writer.store(currData, servo);
       lastBufferTime = millis();
 
     }

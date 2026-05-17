@@ -5,6 +5,8 @@
 #include <SensorData.hpp>
 #include <SpeakerControl.hpp>
 
+#include <ServoControl.hpp>
+
 #ifndef FS_WRITER_HPP
 #define FS_WRITER_HPP
 
@@ -19,7 +21,7 @@ public:
 
     void flush();
 
-    void store(SensorData &record);
+    void store(SensorData &record, ServoControl &servo);
 
     void streamFSData();
 

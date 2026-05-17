@@ -8,24 +8,24 @@ LEDControl::LEDControl()
 
 void LEDControl::leftLedOn(void)
 {
-    analogWrite(ledPinOne, 0);
-    analogWrite(ledPinTwo, 128);
+    digitalWrite(ledPinOne, LOW);
+    digitalWrite(ledPinTwo, HIGH);
 }
 
 void LEDControl::rightLedOn(void)
 {
-    analogWrite(ledPinOne, 128);
-    analogWrite(ledPinTwo, 0);
+    digitalWrite(ledPinOne, HIGH);
+    digitalWrite(ledPinTwo, LOW);
 }
 
 void LEDControl::ledsOn(void)
 {
-    analogWrite(ledPinOne, 128);
-    analogWrite(ledPinTwo, 128);
+    digitalWrite(ledPinOne, HIGH);
+    digitalWrite(ledPinTwo, HIGH);
 }
 
 void LEDControl::ledsOff(void)
 {
-    analogWrite(ledPinOne, 0);
-    analogWrite(ledPinTwo, 0);
+    digitalWrite(ledPinOne, LOW);
+    digitalWrite(ledPinTwo, LOW);
 }

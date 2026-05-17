@@ -5,6 +5,12 @@ GPSControl::GPSControl()
     // Do nothing
 }
 
+bool GPSControl::hasFix()
+{
+    return gps.location.isValid();
+}
+
+
 void GPSControl::connectGPS(void)
 {
     Serial.begin(115200);
@@ -42,8 +48,8 @@ void GPSControl::pollGPS(SensorData &record)
     // Normal GPS logic
     if (gps.location.isUpdated())
     {
-        //record.gps_lat = gps.location.lat();
-        //record.gps_lon = gps.location.lng();
-        //record.gps_alt = gps.altitude.meters();
+        record.gps_lat = gps.location.lat();
+        record.gps_lon = gps.location.lng();
+        record.gps_alt = gps.altitude.meters();
     }
 }

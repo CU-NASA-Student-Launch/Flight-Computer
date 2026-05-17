@@ -47,13 +47,14 @@ void FsWriter::flush()
     logFile.close(); // Flushes LFS buffer
 }
 
-void FsWriter::store(SensorData &record)
+void FsWriter::store(SensorData &record, ServoControl &servo)
 {
     // Check if the buffer is full before writing
     // The buffer is used to write data in large chunks. This saves time as writing to
     // flash is a very slow operation and flash wears out over time.
     if (currBuffLoc == sensorDataBuff.size() - 1)
     {
+        servo.adjustAngle(0);
         tone(22, 1500);
         this->flush();
         currBuffLoc = 0;
